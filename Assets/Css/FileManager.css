@@ -1068,7 +1068,12 @@ div.filemanager div.filemanager-diag-dump li span.key {
 	font-weight: bold;
 }
 
-div.filemanager div.filemanager-diag-dump li span.key.overlarge {
+/*
+overlarger series ~ golden ratio: 0010, 0016, 0025, 0040, ... 
+
+Use these classes to tweak the look of the detail info dump. 
+*/
+div.filemanager div.filemanager-diag-dump li span.key.overlarger0016 {
 	width: auto;    /* prevent key text from overlapping the data; that looks really ugly. */
 }
 

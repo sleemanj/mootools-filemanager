@@ -5062,8 +5062,20 @@ class FileManagerUtility
 			$returnstring .= '<ul class="dump_array dump_level_' . sprintf('%02u', $level) . '">';
 			foreach ($variable as $key => &$value)
 			{
-				$overlarge_key_class = (strlen($key) >= 20 ? 'overlarge' : ''); // this is a heuristic based on the current frontend CSS; this spares me a long walk over all the <span> nodes using JS to measure and adjust those nodes which truly need it.
-				$returnstring .= '<li><span class="key ' . $overlarge_key_class . '">' . $key . '</span>';
+				// Assign an extra class representing the (rounded) width in number of characters 'or more': 
+				// You can use this as a width approximation in pixels to style (very) wide items. It saves 
+				// a long run through all the nodes in JS, just to measure the actual width and correct any
+				// overlap occurring in there.
+				$keylen = strlen($key);
+				$threshold = 10;
+				$overlarge_key_class = '';
+				while ($keylen >= $threshold)
+				{
+					$overlarge_key_class .= ' overlarger' . sprintf('%04d', $threshold);
+					$threshold *= 1.6;
+				}
+				
+				$returnstring .= '<li><span class="key' . $overlarge_key_class . '">' . $key . '</span>';
 				$tstring = '';
 				if ($show_types)
 				{
