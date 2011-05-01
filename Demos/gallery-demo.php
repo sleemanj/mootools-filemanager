@@ -325,9 +325,7 @@ session_write_close();
 	<div class="example">
 		<button id="example4">Create a Gallery</button>
 		<input name="BrowseExample4" type="text" id="myGallery" value="Gallery output will be stored in here" style="width: 550px;" />
-	</div>
 
-	<div class="example">
 		<p>When you've selected a series of images, the thumbnails of those will be rendered below. Click on any of the thumbnails to see the images appear in a milkbox gallery show.</p>
 
 		<div id="slider" class="slider">
