@@ -838,7 +838,7 @@ div.filemanager button.filemanager-serialize {
 div.filemanager-gallery {
 	position: absolute;
 	/* z-index: 1000; */
-	width: 778px;        /* 9 images wide; old 750px value was ~ 8.5 so pretty useless */
+	width: 798px;        /* 9 images wide + optional scrollbar; old 750px value was ~ 8.5 so pretty useless */
 	height: 144px;
 	display: none;
 
