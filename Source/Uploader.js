@@ -345,7 +345,7 @@ FileManager.implement({
 				self.upload.lastFileUploaded = f.name;
 			},
 			onFail: function(error) {
-				self.diag.log('FlashUploader: onFail', arguments, ', fileList: ', self.swf.fileList);
+				self.diag.log('FlashUploader: onFail', arguments, ', swf: ', self.swf, ', fileList: ', (typeof self.swf !== 'undefined' ? self.swf : '---'));
 				if (error !== 'empty') {
 					$$(self.upload.button, self.upload.label).dispose();
 					self.showError(self.language.flash[error] || self.language.flash.flash);
