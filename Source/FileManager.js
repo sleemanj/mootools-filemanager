@@ -97,7 +97,11 @@ var FileManager = new Class({
 		standalone: true,                 // (boolean). Default to true. If set to false, returns the Filemanager without enclosing window / overlay.
 		parentContainer: null,            // (string). ID of the parent container. If not set, FM will consider its first container parent for fitSizes();
 		hideOnSelect: true,               // (boolean). Default to true. If set to false, it leavers the FM open after a picture select.
-
+// Partikule
+// To set the thumb gallery container size for each thumb (dir-gal-thumb-bg)
+// Could also be returned by the backend lib, but makes alot of data for nothing on big galleries.		
+		thumbSmallSize: 48,
+// /Partikule
 		mkServerRequestURL: null          // (function) specify your own alternative URL/POST data constructor when you use a framework/system which requires such.   function([object] fm_obj, [string] request_code, [assoc.array] post_data)
 	},
 
@@ -121,7 +125,9 @@ var FileManager = new Class({
 		this.droppables = [];
 		this.assetBasePath = this.options.assetBasePath.replace(/(\/|\\)*$/, '/');
 		this.root = null;
+// Problem here
 		this.CurrentDir = null;
+//		this.CurrentDir = {path:'/files', name:'files'};
 		this.listType = 'list';
 		this.dialogOpen = false;
 		this.storeHistory = false;
@@ -140,8 +146,6 @@ var FileManager = new Class({
 		// timer for dir-gallery click / dblclick events:
 		this.dir_gallery_click_timer = null;
 
-
-		var dbg_cnt = 0;
 
 		this.RequestQueue = new Request.Queue({
 			concurrent: 3,              // 3 --> 75% max load on a quad core server
@@ -391,7 +395,6 @@ var FileManager = new Class({
 				//return self.deselect();   // nothing to return on a click event, anyway. And do NOT loose the selection!
 
 				// the code you need here is identical to clicking on the current directory in the top path bar:
-
 				// show the 'directory' info in the detail pane again (this is a way to get back from previewing single files to previewing the directory as a gallery)
 				this.diag.log('show_dir_Thumb_gallery button click: current directory!', this.CurrentDir, ', startdir: ', this.options.directory);
 				this.fillInfo();
@@ -543,10 +546,6 @@ var FileManager = new Class({
 			}
 		}).set('opacity', 0).set('tween', {duration: 'short'}).inject(this.container);
 
-// Partikule : Moved a little bit more on the bottom...
-//      this.container.inject(document.body);
-// /Partikule
-
 		if (!this.options.hideOverlay) {
 			this.overlay = new Overlay(Object.append((this.options.hideOnClick ? {
 				events: {
@@ -577,7 +576,6 @@ var FileManager = new Class({
 					this.ctrl_key_pressed = true;
 				}
 			}).bind(this),
-
 			keyup: (function(e)
 			{
 				this.diag.log('keyup: key press: ', e);
@@ -626,7 +624,6 @@ var FileManager = new Class({
 					break;
 				}
 			}).bind(this),
-
 			scroll: (function(e)
 			{
 				this.fireEvent('scroll', [e, this]);
@@ -634,7 +631,6 @@ var FileManager = new Class({
 			}).bind(this)
 		};
 
-// Partikule
 		if (this.options.standalone)
 		{
 			this.container.inject(document.body);
@@ -644,8 +640,6 @@ var FileManager = new Class({
 		}
 		else
 		{
-// Partikule : Removed the autostart bacause of the standalone mode.
-// Certainly a better way to do that...
 			this.options.hideOverlay = true;
 		}
 		return this;
@@ -703,7 +697,6 @@ var FileManager = new Class({
 
 	fitSizes: function()
 	{
-// Partikule : Add the standalone check
 		if (this.options.standalone)
 		{
 			this.filemanager.center(this.offsets);
@@ -717,7 +710,6 @@ var FileManager = new Class({
 				this.filemanager.setStyle('height', parentSize.y);
 			}
 		}
-// /Partikule
 
 		var containerSize = this.filemanager.getSize();
 		var headerSize = this.browserheader.getSize();
@@ -1071,13 +1063,11 @@ var FileManager = new Class({
 			this
 		]);
 
-// Partikule
-// Why Hide ? For some usage, it can be useful to keep it open (more than 3 files and it will be really annoying to re-open the FM for each file select)
+		// Only hide if hideOnSelect is true
 		if (this.options.hideOnSelect)
 		{
 			this.hide();
 		}
-// /Partikule
 	},
 
 	download_on_click: function(e) {
@@ -1817,6 +1807,7 @@ var FileManager = new Class({
 
 		this.diag.log('# fill: file = ', j, ', onShow: ', this.onShow, ', mgr: ', this);
 		this.root = j.root;
+
 		this.CurrentDir = j.this_dir;
 		if (!this.onShow) {
 			this.diag.log('fill internal: fillInfo: file = ', j, j.this_dir);
@@ -1998,7 +1989,7 @@ var FileManager = new Class({
 		var fname = file.name;
 		if (fname.length > 6)
 		{
-			fname = fname.substr(0, 6) + '...';
+//			fname = fname.substr(0, 10) + '...';
 		}
 
 		var el = new Element('div', {
@@ -2008,11 +1999,16 @@ var FileManager = new Class({
 			new Element('div', {
 				'class': 'dir-gal-thumb-bg',
 				'styles': {
+					'width': this.options.thumbSmallSize + 'px',
+					'height': this.options.thumbSmallSize + 'px',
 					'background-image': 'url(' + (thumbnail_url ? thumbnail_url : this.assetBasePath + 'Images/loader.gif') + ')'
 				}
 			}),
 			new Element('div', {
 				'class': 'name',
+				'styles': {
+					'width': this.options.thumbSmallSize + 'px'
+				},
 				'text': fname
 			})
 		);

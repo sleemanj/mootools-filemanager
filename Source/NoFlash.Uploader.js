@@ -94,7 +94,7 @@ FileManager.implement({
 			this._dummyframe = null;
 		}
 
-		var mfm = this;
+		var self = this;
 
 		var f = (new Element('form'))
 			//.set('action', tx_cfg.url)
@@ -106,10 +106,11 @@ FileManager.implement({
 		var uploadButton = this.addMenuButton('upload').addEvents({
 			click:  function(e) {
 				e.stop();
-				mfm.browserLoader.set('opacity', 1);
+				self.browserLoader.set('opacity', 1);
 				f.action = tx_cfg.url;
-				// TODO: fixup the resize setting!
-				// resize: ((this.label && this.label.getElement('.checkbox').hasClass('checkboxChecked')) ? 1 : 0)
+				
+				// Update curent dir path to form hidden field
+				self.uploadFormInputs['directory'].setProperty('value', self.CurrentDir.path);
 
 				f.submit();
 			},
@@ -127,11 +128,36 @@ FileManager.implement({
 
 		this.menu.adopt(uploadButton);
 
-		if (this.options.resizeImages){
+		var tx_cfg = this.options.mkServerRequestURL(this, 'upload', Object.merge(
+			this.options.propagateData,
+			{
+				directory: '',
+				filter: this.options.filter,
+				resize: this.options.resizeImages,     // TODO: must be updated when button is clicked
+				reportContentType: 'text/plain'        // Safer for iframes: the default 'application/json' mime type would cause FF3.X to pop up a save/view dialog!
+			}
+		));
+		
+		// Stores form hidden inputs
+		this.uploadFormInputs = new Hash();
+
+		// Create hidden input for each form data
+		Object.each(tx_cfg.data, function(v, k){
+			input = new Element('input').set({type: 'hidden', name: k, value: v, id: 'filemanager_upload_' + k });
+			f.adopt(input);
+			self.uploadFormInputs[k] = input;
+		});
+
+		if (this.options.resizeImages)
+		{
 			var resizer = new Element('div', {'class': 'checkbox'});
-			var check = (function(){
-					this.toggleClass('checkboxChecked');
-				}).bind(resizer);
+			var check = (function()
+			{
+				this.toggleClass('checkboxChecked');
+
+				// Update the resize hidden field
+				self.uploadFormInputs['resize'].setProperty('value', (this.hasClass('checkboxChecked')) ? 1 : 0);
+			}).bind(resizer);
 
 			check();
 			uploadButton.label = new Element('label').adopt(
@@ -139,29 +165,17 @@ FileManager.implement({
 			).addEvent('click', check).inject(this.menu);
 		}
 
-		var tx_cfg = this.options.mkServerRequestURL(this, 'upload', Object.merge({},
-						this.options.propagateData,
-						(this.options.uploadAuthData || {}), {
-							directory: this.CurrentDir.path,
-							filter: this.options.filter,
-							resize: this.options.resizeImages,     // TODO: must be updated when button is clicked
-							reportContentType: 'text/plain'        // Safer for iframes: the default 'application/json' mime type would cause FF3.X to pop up a save/view dialog!
-						}));
-
-		Object.each(tx_cfg.data, function(v, k){
-			f.adopt((new Element('input')).set({type: 'hidden', name: k, value: v}));
-		});
-
 		this.make_file_input(f);
 
 		f.inject(this.menu, 'top');
+		this.menu.setStyle('height', '60px');
 
 		this._dummyframe = (new IFrame).set({src: 'about:blank', name: 'dummyframe'}).setStyles({display: 'none'});
 		this.menu.adopt(this._dummyframe);
 
 		this._dummyframe.addEvent('load', function()
 		{
-			mfm.browserLoader.fade(0);
+			self.browserLoader.fade(0);
 
 			try
 			{
@@ -200,28 +214,29 @@ FileManager.implement({
 				if (response && !response.status)
 				{
 					mfm.showError('' + response.error);
-					mfm.load(mfm.CurrentDir.path);
 				}
 				else if (response)
 				{
-					// mfm.onShow = true; // why exactly do we need to set this, what purpose does the default of NOT preselecting the thing we asked to preselect have?
-					mfm.load(mfm.dirname(response.path), response.name);
+					mfm.onShow = true; // why exactly do we need to set this, what purpose does the default of NOT preselecting the thing we asked to preselect have?
+
+					// Why the Hell a regex replace on Directory???
+					//self.load(mfm.Directory.replace(/\/$/, ''), response.name ? response.name : null);
+					self.load(mfm.Directory, (response.name ? response.name : null));
 				}
 				else
 				{
 					this.showError('bugger! No JSON response!');
-					mfm.load(mfm.CurrentDir.path);
 				}
 			}
 			catch(e)
 			{
 				// Maybe this.contentDocument.documentElement.innerText isn't where we need to look?
 				//debugger;
-				mfm.diag.log('noFlashUpload: document innerText grab FAIL:', e, this, tx_cfg);
-				mfm.load(mfm.CurrentDir.path);
+				self.diag.log('noFlashUpload: document innerText grab FAIL:', e, this, tx_cfg);
+				self.load(self.Directory);
 			}
 
-			mfm.make_file_input(f);
+			self.make_file_input(f);
 		});
 	}
 });

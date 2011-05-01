@@ -529,7 +529,7 @@ require(strtr(dirname(__FILE__), '\\', '/') . '/Assets/getid3/getid3.php');
 
 
 // the jpeg quality for the largest thumbnails (smaller ones are automatically done at increasingly higher quality)
-define('MTFM_THUMBNAIL_JPEG_QUALITY', 75);
+define('MTFM_THUMBNAIL_JPEG_QUALITY', 80);
 
 // the number of directory levels in the thumbnail cache; set to 2 when you expect to handle huge image collections.
 //
@@ -1005,6 +1005,19 @@ class FileManager
 			'directory' => null,                                                        // the root of the 'legal URI' directory tree, to be managed by MTFM. MUST be in the DocumentRoot tree.
 			'assetBasePath' => null,                                                    // may sit outside options['directory'] but MUST be in the DocumentRoot tree
 			'thumbnailPath' => null,                                                    // may sit outside options['directory'] but MUST be in the DocumentRoot tree
+/* Partikule
+ * 48px is really too small for the thumb gallery.
+ * The purpose of using the thumb gallery to display thumbs was to have more space, and to make the preview more suitable for the user
+ * 120px (or another size, why not ?) is more userfriendly.
+ * More of that, on big photographer repo, 120px gives ability to better distinguish pictures, wich couldn't be done at 48px...
+ * For the same reason, the current "250" size should be a setting, not forced.
+ * Ideally, we should have 2 thumbs size : small & big.
+ *
+ */
+			'thumbSmallSize' => 120,		// Used for thumb48 creation
+			'thumbBigSize' => 250,			// Used for thumb250 creation
+// /Partikule
+
 			'mimeTypesPath' => strtr(dirname(__FILE__), '\\', '/') . '/MimeTypes.ini',  // an absolute filesystem path anywhere; when relative, it will be assumed to be against SERVER['SCRIPT_NAME']
 			'documentRootPath' => null,                                                 // an absolute filesystem path pointing at URI path '/'. Default: SERVER['DOCUMENT_ROOT']
 			'dateFormat' => 'j M Y - H:i',
@@ -2849,7 +2862,7 @@ class FileManager
 				{
 					if (empty($thumb250))
 					{
-						$thumb250 = $this->getThumb($meta, $file, 250, 250, $auto_thumb_gen_mode);
+						$thumb250 = $this->getThumb($meta, $file, $this->options['thumbBigSize'], $this->options['thumbBigSize'], $auto_thumb_gen_mode);
 					}
 					if (!empty($thumb250))
 					{
@@ -2857,7 +2870,7 @@ class FileManager
 					}
 					if (empty($thumb48))
 					{
-						$thumb48 = $this->getThumb($meta, (!empty($thumb250) ? $this->url_path2file_path($thumb250) : $file), 48, 48, $auto_thumb_gen_mode);
+						$thumb48 = $this->getThumb($meta, (!empty($thumb250) ? $this->url_path2file_path($thumb250) : $file), $this->options['thumbSmallSize'], $this->options['thumbSmallSize'], $auto_thumb_gen_mode);
 					}
 					if (!empty($thumb48))
 					{
@@ -2904,7 +2917,7 @@ class FileManager
 				// are we delaying the thumbnail generation? When yes, then we need to infer the thumbnail dimensions *anyway*!
 				if (empty($thumb48) && $thumbnails_done_or_deferred)
 				{
-					$dims = $this->predictThumbDimensions($width, $height, 48, 48);
+					$dims = $this->predictThumbDimensions($width, $height, $this->options['thumbSmallSize'], $this->options['thumbSmallSize']);
 
 					$json['thumb48_width'] = $dims['width'];
 					$json['thumb48_height'] = $dims['height'];
@@ -2916,7 +2929,7 @@ class FileManager
 						// to show the loader.gif in the preview <img> tag, we MUST set a width+height there, so we guestimate the thumbnail250 size as accurately as possible
 						//
 						// derive size from original:
-						$dims = $this->predictThumbDimensions($width, $height, 250, 250);
+						$dims = $this->predictThumbDimensions($width, $height, $this->options['thumbBigSize'], $this->options['thumbBigSize']);
 
 						$preview_HTML = '<a href="' . FileManagerUtility::rawurlencode_path($url) . '" data-milkbox="single" title="' . htmlentities($filename, ENT_QUOTES, 'UTF-8') . '">
 									   <img src="' . $this->options['assetBasePath'] . 'Images/transparent.gif" class="preview" alt="preview" style="width: ' . $dims['width'] . 'px; height: ' . $dims['height'] . 'px;" />
@@ -3117,7 +3130,7 @@ class FileManager
 			if (!$thumbnails_done_or_deferred)
 			{
 				// check if we have stored a thumbnail for this file anyhow:
-				$thumb250 = $this->getThumb($meta, $file, 250, 250, true);
+				$thumb250 = $this->getThumb($meta, $file, $this->options['thumbBigSize'], $this->options['thumbBigSize'], true);
 				if (empty($thumb250))
 				{
 					if (!empty($fi) && $check_for_embedded_img)
@@ -3160,12 +3173,12 @@ class FileManager
 							{
 								try
 								{
-									$thumb250 = $this->getThumb($meta, $thumbX_f, 250, 250, false);
+									$thumb250 = $this->getThumb($meta, $thumbX_f, $this->options['thumbBigSize'], $this->options['thumbBigSize'], false);
 									if (!empty($thumb250))
 									{
 										$thumb250_e = FileManagerUtility::rawurlencode_path($thumb250);
 									}
-									$thumb48 = $this->getThumb($meta, (!empty($thumb250) ? $this->url_path2file_path($thumb250) : $thumbX_f), 48, 48, false);
+									$thumb48 = $this->getThumb($meta, (!empty($thumb250) ? $this->url_path2file_path($thumb250) : $thumbX_f), $this->options['thumbSmallSize'], $this->options['thumbSmallSize'], false);
 									if (!empty($thumb48))
 									{
 										$thumb48_e = FileManagerUtility::rawurlencode_path($thumb48);
@@ -3187,7 +3200,7 @@ class FileManager
 					$thumb250_e = FileManagerUtility::rawurlencode_path($thumb250);
 					try
 					{
-						$thumb48 = $this->getThumb($meta, $this->url_path2file_path($thumb250), 48, 48, false);
+						$thumb48 = $this->getThumb($meta, $this->url_path2file_path($thumb250), $this->options['thumbSmallSize'], $this->options['thumbSmallSize'], false);
 						assert(!empty($thumb48));
 						$thumb48_e = FileManagerUtility::rawurlencode_path($thumb48);
 					}
@@ -3212,7 +3225,7 @@ class FileManager
 			{
 				try
 				{
-					$thumb48 = $this->getThumb($meta, $this->url_path2file_path($thumb250), 48, 48, false);
+					$thumb48 = $this->getThumb($meta, $this->url_path2file_path($thumb250), $this->options['thumbSmallSize'], $this->options['thumbSmallSize'], false);
 					assert(!empty($thumb48));
 					$thumb48_e = FileManagerUtility::rawurlencode_path($thumb48);
 				}
