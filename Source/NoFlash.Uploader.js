@@ -18,7 +18,7 @@ provides: Filemanager.NoFlashUploader
  * While the flash uploader is preferable, sometimes it is not possible to use it due to
  * server restrictions (eg, mod_security), or perhaps users refuse to use flash.
  *
- * This Upload handler will allow the MFM to continue to function, without multiple-upload-at-once
+ * This Upload handler will allow the MTFM to continue to function, without multiple-upload-at-once
  * function and without progress bars.  But otherwise, it should work.
  */
 FileManager.implement({
@@ -26,9 +26,7 @@ FileManager.implement({
 	options: {
 		resizeImages: true,
 		upload: true,
-
-		// Is there a useful reason to have this different from propagateData... dubious :-/
-		uploadAuthData: {}
+		uploadAuthData: {}             // deprecated; use FileManager.propagateData instead!
 	},
 
 	hooks: {
@@ -39,28 +37,23 @@ FileManager.implement({
 		},
 
 		cleanup: {
-			upload: function(){
-				if (!this.options.upload  || !this.upload) {
-					return;
-				}
+			upload: function() {
+				if (!this.options.upload || !this.upload) return;
 
-				try {
-					if (this.upload.uploader) {
-						this.upload.uploader.set('opacity', 0).dispose();
-					}
+				if (this.upload.uploader) {
+					this.upload.uploader.fade(0).get('tween').chain(function() {
+						this.element.dispose();
+					});
 				}
-				catch(e) { }
 			}
 		}
 	},
 
-	_dummyframe: null,
-
-	onDialogOpenWhenUpload: function(){
+	onDialogOpenWhenUpload: function() {
 
 	},
 
-	onDialogCloseWhenUpload: function(){
+	onDialogCloseWhenUpload: function() {
 
 	},
 
@@ -87,55 +80,61 @@ FileManager.implement({
 		}
 
 		// discard old iframe, if it exists:
-		if (this._dummyframe)
+		if (this.upload.dummyframe)
 		{
 			// remove from the menu (dispose) and trash it (destroy)
-			this._dummyframe.dispose().destroy();
-			this._dummyframe = null;
+			this.upload.dummyframe.dispose().destroy();
+			this.upload.dummyframe = null;
 		}
 
-		var mfm = this;
+		var self = this;
 
-		var f = (new Element('form'))
-			//.set('action', tx_cfg.url)
-			.set('method', 'post')
-			.set('enctype', 'multipart/form-data')
-			.set('target', 'dummyframe')
-			.setStyles({ 'float': 'left', 'padding-left': '3px', 'display': 'block'});
+		this.upload = {
+			form: (new Element('form'))
+				//.set('action', tx_cfg.url)
+				.set('method', 'post')
+				.set('enctype', 'multipart/form-data')
+				.set('target', 'dummyframe')
+				.setStyles({
+					'float': 'left',
+					'padding-left': '3px',
+					'display': 'block'
+			}),
 
-		var uploadButton = this.addMenuButton('upload').addEvents({
-			click:  function(e) {
-				e.stop();
-				mfm.browserLoader.set('opacity', 1);
-				f.action = tx_cfg.url;
-				// TODO: fixup the resize setting!
-				// resize: ((this.label && this.label.getElement('.checkbox').hasClass('checkboxChecked')) ? 1 : 0)
+			uploadButton: this.addMenuButton('upload').inject(this.menu, 'bottom').addEvents({
+				click:  function(e) {
+					e.stop();
+					self.browserLoader.fade(1);
+					f.action = tx_cfg.url;
+					// TODO: fixup the resize setting!
+					// resize: ((this.label && this.label.getElement('.checkbox').hasClass('checkboxChecked')) ? 1 : 0)
 
-				f.submit();
-			},
-			mouseenter: function(){
-				this.addClass('hover');
-			},
-			mouseleave: function(){
-				this.removeClass('hover');
-				this.blur();
-			},
-			mousedown: function(){
-				this.focus();
-			}
-		});
+					self.upload.form.submit();
+				},
+				mouseenter: function() {
+					this.addClass('hover');
+				},
+				mouseleave: function() {
+					this.removeClass('hover');
+					this.blur();
+				},
+				mousedown: function() {
+					this.focus();
+				}
+			}),
+			lastFileUploaded: null,  // name of the last successfully uploaded file; will be preselected in the list view
+			error_count: 0
+		};
 
-		this.menu.adopt(uploadButton);
-
-		if (this.options.resizeImages){
+		if (this.options.resizeImages) {
 			var resizer = new Element('div', {'class': 'checkbox'});
-			var check = (function(){
+			var check = (function() {
 					this.toggleClass('checkboxChecked');
 				}).bind(resizer);
-
 			check();
-			uploadButton.label = new Element('label').adopt(
-				resizer, new Element('span', {text: this.language.resizeImages})
+			this.upload.uploadButton.label = new Element('label').adopt(
+				resizer,
+				new Element('span', {text: this.language.resizeImages})
 			).addEvent('click', check).inject(this.menu);
 		}
 
@@ -148,80 +147,57 @@ FileManager.implement({
 							reportContentType: 'text/plain'        // Safer for iframes: the default 'application/json' mime type would cause FF3.X to pop up a save/view dialog!
 						}));
 
-		Object.each(tx_cfg.data, function(v, k){
-			f.adopt((new Element('input')).set({type: 'hidden', name: k, value: v}));
+		Object.each(tx_cfg.data, function(v, k) {
+			self.upload.form.adopt((new Element('input')).set({type: 'hidden', name: k, value: v}));
 		});
 
-		this.make_file_input(f);
+		this.make_file_input(self.upload.form);
 
-		f.inject(this.menu, 'top');
+		self.upload.form.inject(this.menu, 'top');
 
-		this._dummyframe = (new IFrame).set({src: 'about:blank', name: 'dummyframe'}).setStyles({display: 'none'});
-		this.menu.adopt(this._dummyframe);
+		this.upload.dummyframe = (new IFrame).set({src: 'about:blank', name: 'dummyframe'}).setStyles({display: 'none'});
+		this.menu.adopt(this.upload.dummyframe);
 
-		this._dummyframe.addEvent('load', function()
+		this.upload.dummyframe.addEvent('load', function()
 		{
-			mfm.browserLoader.fade(0);
+			self.browserLoader.fade(0);
 
-			try
-			{
-				var response;
-				try
-				{
+			var response;
+			Function.attempt(function() {
 					response = this.contentDocument.documentElement.textContent;
+				},
+				function() {
+					response = this.contentWindow.document.innerText;
+				},
+				function() {
+					response = this.contentDocument.innerText;
+				},
+				function() {
+					// Maybe this.contentDocument.documentElement.innerText isn't where we need to look?
+					//debugger;
+					reponse = "{status: 0, error: \"noFlashUpload: document innerText grab FAIL: Can't find response.\"}";
 				}
-				catch(e) {}
+			);
 
-				if (!response)
-				{
-					try
-					{
-						response = this.contentWindow.document.innerText;
-					}
-					catch(e) {}
-				}
+			j = JSON.decode(response);
 
-				if (!response)
-				{
-					try
-					{
-						response = this.contentDocument.innerText;
-					}
-					catch(e) {}
-				}
-
-				if (!response)
-				{
-					throw "Can't find response.";
-				}
-
-				response = JSON.decode(response);
-
-				if (response && !response.status)
-				{
-					mfm.showError('' + response.error);
-					mfm.load(mfm.CurrentDir.path);
-				}
-				else if (response)
-				{
-					// mfm.onShow = true; // why exactly do we need to set this, what purpose does the default of NOT preselecting the thing we asked to preselect have?
-					mfm.load(mfm.dirname(response.path), response.name);
-				}
-				else
-				{
-					this.showError('bugger! No JSON response!');
-					mfm.load(mfm.CurrentDir.path);
-				}
-			}
-			catch(e)
+			if (j && !j.status)
 			{
-				// Maybe this.contentDocument.documentElement.innerText isn't where we need to look?
-				//debugger;
-				mfm.diag.log('noFlashUpload: document innerText grab FAIL:', e, this, tx_cfg);
-				mfm.load(mfm.CurrentDir.path);
+				self.showError('' + j.error);
+				self.load(self.CurrentDir.path);
+			}
+			else if (j)
+			{
+				// self.onShow = true; // why exactly do we need to set this, what purpose does the default of NOT preselecting the thing we asked to preselect have?
+				self.load(self.dirname(j.path), j.name);
+			}
+			else
+			{
+				this.showError('bugger! No or faulty JSON response! ' + response);
+				self.load(self.CurrentDir.path);
 			}
 
-			mfm.make_file_input(f);
+			self.make_file_input(self.upload.form);
 		});
 	}
 });
