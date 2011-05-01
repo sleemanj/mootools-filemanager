@@ -5,6 +5,11 @@ body
 	font-family: Tahoma, sans-serif;
 }
 
+a img
+{
+	border: 0 none;
+}
+
 h1, h2
 {
 	margin: 0 0 10px 0;
