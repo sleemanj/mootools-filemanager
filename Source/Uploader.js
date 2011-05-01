@@ -44,10 +44,6 @@ FileManager.implement({
 		}
 	},
 
-	lastFileUploaded: null,  // name of the last successfully uploaded file; will be preselected in the list view
-	error_count: 0,
-
-
 	onDialogOpenWhenUpload: function() {
 		if (this.swf && this.swf.box) this.swf.box.setStyle('visibility', 'hidden');
 	},
@@ -81,7 +77,9 @@ FileManager.implement({
 			uploader: new Element('div', {opacity: 0, 'class': 'filemanager-uploader-area'}).adopt(
 				new Element('h2', {text: this.language.upload}),
 				new Element('div', {'class': 'filemanager-uploader'})
-			)
+			),
+			lastFileUploaded: null,  // name of the last successfully uploaded file; will be preselected in the list view
+			error_count: 0
 		};
 		this.upload.uploader.getElement('div').adopt(this.upload.list);
 
@@ -275,7 +273,7 @@ FileManager.implement({
 
 				if (failure)
 				{
-					self.error_count++;
+					self.upload.error_count++;
 				}
 
 				// don't wait for the cute delays to start updating the directory view!
@@ -302,8 +300,6 @@ FileManager.implement({
 		};
 
 		this.diag.log('Uploader: SWF init');
-		this.lastFileUploaded = null;
-		this.error_count = 0;
 		this.swf = new Swiff.Uploader({
 			id: 'SwiffFileManagerUpload',
 			path: this.assetBasePath + 'Swiff.Uploader.swf',
@@ -340,13 +336,13 @@ FileManager.implement({
 				// add a 5 second delay when there were upload errors:
 				(function() {
 					this.onShow = true;
-					this.load(this.CurrentDir.path, this.lastFileUploaded);
+					this.load(this.CurrentDir.path, this.upload.lastFileUploaded);
 					// this.fillInfo();
-				}).bind(this).delay(this.error_count > 0 ? 5500 : 1);
+				}).bind(this).delay(this.upload.error_count > 0 ? 5500 : 1);
 			}.bind(this),
 			onFileComplete: function(f) {
 				self.diag.log('FlashUploader: onFileComplete', arguments, ', fileList: ', self.swf.fileList);
-				self.lastFileUploaded = f.name;
+				self.upload.lastFileUploaded = f.name;
 			},
 			onFail: function(error) {
 				self.diag.log('FlashUploader: onFail', arguments, ', fileList: ', self.swf.fileList);
