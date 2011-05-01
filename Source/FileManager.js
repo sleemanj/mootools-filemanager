@@ -3169,13 +3169,110 @@ var FileManager = new Class({
 
 			if (typeof console !== 'undefined')
 			{
-				if (console.info)
+				// WARNING: MS IE9 (+ v8?) says: this object doesn't support the 'apply' method. :-(((
+				// Also, MSIE 8/9 doesn't show object dumps like you'd expect; Firebug Lite allegedly fixes that,
+				// but this is code which intends to 'hide' all that shite, so we can simply write diag.log() and
+				// not bother where it will end up.
+				if (console.info && console.info.apply)
 				{
 					console.info.apply(console, arguments);
 				}
-				else if (console.log)
+				else if (console.log && console.log.apply)
 				{
 					console.log.apply(console, arguments);
+				}
+				else if (console.info || console.log)
+				{
+					// the MSIE downgrade
+					var l = (console.info || console.log);
+					var a;
+					var lt = '';
+					var m, e, v;
+					var multiobj = 0;	// count items dumped without inter-WS
+					for (a in arguments)
+					{
+						multiobj++;
+						a = arguments[a];
+						switch (typeof a)
+						{
+						case 'undefined':
+							lt += '(undefined)';
+							break;
+
+						case 'null':
+							lt += '(null)';
+							break;
+
+						case 'object':
+							lt += '{';
+							m = '';
+							for (e in a)
+							{
+								lt += m;
+
+								v = a[e];
+								//if (typeof e !== 'string') continue;
+								switch (typeof v)
+								{
+								case 'function':
+									continue; 				// skip these
+
+								case 'undefined':
+									lt += e + ': (undefined)';
+									break;
+
+								case 'null':
+									lt += e + ': (null)';
+									break;
+
+								case 'object':
+									// nuts of course: IE9 has objects which turn out as === null and clunk on .toString() as a consequence   >:-S
+									if (v === null)
+									{
+										lt += e + ': (null)';
+									}
+									else
+									{
+										lt += e + ': ' + v.toString();
+									}
+									break;
+
+								case 'string':
+									lt += e + ': "' + v + '"';
+									break;
+
+								default:
+									lt += e + ': ' + v.toString();
+									break;
+								}
+								m = ', ';
+							}
+							lt += '}';
+							break;
+
+						case 'string':
+							// reset inter-WS formatting assist:
+							multiobj = 0;
+							lt += a;
+							break;
+
+						default:
+							try
+							{
+								m = a.toString();
+							}
+							catch (e)
+							{
+								m = '(*clunk*)';
+							}
+							lt += v;
+							break;
+						}
+						if (multiobj >= 1)
+						{
+							lt += ' ';
+						}
+					}
 				}
 			}
 		}
