@@ -146,6 +146,7 @@ var FileManager = new Class({
 		// timer for dir-gallery click / dblclick events:
 		this.dir_gallery_click_timer = null;
 
+		var dbg_cnt = 0;
 
 		this.RequestQueue = new Request.Queue({
 			concurrent: 3,              // 3 --> 75% max load on a quad core server
