@@ -89,48 +89,49 @@ FileManager.implement({
 
 		var self = this;
 
-		this.upload = {
-			form: (new Element('form'))
-				//.set('action', tx_cfg.url)
-				.set('method', 'post')
-				.set('enctype', 'multipart/form-data')
-				.set('target', 'dummyframe')
-				.setStyles({
-					'float': 'left',
-					'padding-left': '3px',
-					'display': 'block'
-			}),
+		var f = (new Element('form'))
+			//.set('action', tx_cfg.url)
+			.set('method', 'post')
+			.set('enctype', 'multipart/form-data')
+			.set('target', 'dummyframe')
+			.setStyles({ 'float': 'left', 'padding-left': '3px', 'display': 'block'});
 
-			uploadButton: this.addMenuButton('upload').inject(this.menu, 'bottom').addEvents({
-				click:  function(e) {
-					e.stop();
-					self.browserLoader.fade(1);
-					f.action = tx_cfg.url;
-					// TODO: fixup the resize setting!
-					// resize: ((this.label && this.label.getElement('.checkbox').hasClass('checkboxChecked')) ? 1 : 0)
+		var uploadButton = this.addMenuButton('upload').addEvents({
+			click:  function(e) {
+				e.stop();
+				self.browserLoader.set('opacity', 1);
+				f.action = tx_cfg.url;
 
-					self.upload.form.submit();
-				},
-				mouseenter: function() {
-					this.addClass('hover');
-				},
-				mouseleave: function() {
-					this.removeClass('hover');
-					this.blur();
-				},
-				mousedown: function() {
-					this.focus();
-				}
-			}),
-			lastFileUploaded: null,  // name of the last successfully uploaded file; will be preselected in the list view
-			error_count: 0
-		};
+				// Update curent dir path to form hidden field
+				self.uploadFormInputs['directory'].setProperty('value', self.CurrentDir.path);
 
-		if (this.options.resizeImages) {
+				f.submit();
+			},
+			mouseenter: function(){
+				this.addClass('hover');
+			},
+			mouseleave: function(){
+				this.removeClass('hover');
+				this.blur();
+			},
+			mousedown: function(){
+				this.focus();
+			}
+		});
+
+		this.menu.adopt(uploadButton);
+
+		if (this.options.resizeImages)
+		{
 			var resizer = new Element('div', {'class': 'checkbox'});
-			var check = (function() {
-					this.toggleClass('checkboxChecked');
-				}).bind(resizer);
+			var check = (function()
+			{
+				this.toggleClass('checkboxChecked');
+
+				// Update the resize hidden field
+				self.uploadFormInputs['resize'].setProperty('value', (this.hasClass('checkboxChecked')) ? 1 : 0);
+			}).bind(resizer);
+
 			check();
 			this.upload.uploadButton.label = new Element('label').adopt(
 				resizer,
@@ -138,22 +139,31 @@ FileManager.implement({
 			).addEvent('click', check).inject(this.menu);
 		}
 
-		var tx_cfg = this.options.mkServerRequestURL(this, 'upload', Object.merge({},
-						this.options.propagateData,
-						(this.options.uploadAuthData || {}), {
-							directory: this.CurrentDir.path,
-							filter: this.options.filter,
-							resize: this.options.resizeImages,     // TODO: must be updated when button is clicked
-							reportContentType: 'text/plain'        // Safer for iframes: the default 'application/json' mime type would cause FF3.X to pop up a save/view dialog!
-						}));
+		var tx_cfg = this.options.mkServerRequestURL(this, 'upload', Object.merge(
+			this.options.propagateData,
+			{
+				directory: '',
+				filter: this.options.filter,
+				resize: this.options.resizeImages,     // TODO: must be updated when button is clicked
+				reportContentType: 'text/plain'        // Safer for iframes: the default 'application/json' mime type would cause FF3.X to pop up a save/view dialog!
+			}
+		));
 
-		Object.each(tx_cfg.data, function(v, k) {
-			self.upload.form.adopt((new Element('input')).set({type: 'hidden', name: k, value: v}));
+		// Stores form hidden inputs
+		this.uploadFormInputs = new Hash();
+
+		// Create hidden input for each form data
+		Object.each(tx_cfg.data, function(v, k){
+			input = new Element('input').set({type: 'hidden', name: k, value: v, id: 'filemanager_upload_' + k });
+			f.adopt(input);
+			self.uploadFormInputs[k] = input;
 		});
 
-		this.make_file_input(self.upload.form);
+		this.make_file_input(f);
 
-		self.upload.form.inject(this.menu, 'top');
+		f.inject(this.menu, 'top');
+		this.menu.setStyle('height', '60px');
+>>>>>>> remotes/ionize/master
 
 		this.upload.dummyframe = (new IFrame).set({src: 'about:blank', name: 'dummyframe'}).setStyles({display: 'none'});
 		this.menu.adopt(this.upload.dummyframe);
@@ -181,22 +191,34 @@ FileManager.implement({
 
 			j = JSON.decode(response);
 
-			if (j && !j.status)
-			{
-				self.showError('' + j.error);
-				self.load(self.CurrentDir.path);
-			}
-			else if (j)
-			{
-				self.load(self.dirname(j.path), j.name);
+				response = JSON.decode(response);
+
+				if (response && !response.status)
+				{
+					mfm.showError('' + response.error);
+				}
+				else if (response)
+				{
+					mfm.onShow = true; // why exactly do we need to set this, what purpose does the default of NOT preselecting the thing we asked to preselect have?
+
+					// Why the Hell a regex replace on Directory???
+					//self.load(mfm.Directory.replace(/\/$/, ''), response.name ? response.name : null);
+					self.load(mfm.Directory, (response.name ? response.name : null));
+				}
+				else
+				{
+					this.showError('bugger! No JSON response!');
+				}
 			}
 			else
 			{
-				this.showError('bugger! No or faulty JSON response! ' + response);
-				self.load(self.CurrentDir.path);
+				// Maybe this.contentDocument.documentElement.innerText isn't where we need to look?
+				//debugger;
+				self.diag.log('noFlashUpload: document innerText grab FAIL:', e, this, tx_cfg);
+				self.load(self.Directory);
 			}
 
-			self.make_file_input(self.upload.form);
+			self.make_file_input(f);
 		});
 	}
 });

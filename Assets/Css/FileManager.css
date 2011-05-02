@@ -1034,8 +1034,11 @@ div.filemanager-filelist .fi:hover .name {
 div.filemanager-filelist .fi .dir-gal-thumb-bg {
 	background-repeat: no-repeat;
 	background-position: center center;
+	/* 
+	-- Size depends on the user's choice for gallery thumbs sizes
 	width: 100%;
 	height: 48px;
+	*/
 }
 div.filemanager-filelist .fi .name {
 	overflow: hidden;
