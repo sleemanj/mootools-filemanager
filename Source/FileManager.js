@@ -535,7 +535,7 @@ var FileManager = new Class({
 			this.tips.attach(this.closeIcon);
 		}
 
-		this.imageadd = new Asset.image(this.assetBasePath + 'Images/add.png', {
+		this.imageadd = Asset.image(this.assetBasePath + 'Images/add.png', {
 			'class': 'browser-add',
 			styles:
 			{
@@ -573,6 +573,7 @@ var FileManager = new Class({
 					this.ctrl_key_pressed = true;
 				}
 			}).bind(this),
+
 			keyup: (function(e)
 			{
 				this.diag.log('keyup: key press: ', e);
@@ -621,6 +622,7 @@ var FileManager = new Class({
 					break;
 				}
 			}).bind(this),
+
 			scroll: (function(e)
 			{
 				this.fireEvent('scroll', [e, this]);
@@ -1797,7 +1799,6 @@ var FileManager = new Class({
 
 		this.diag.log('# fill: JSON = ', j, ', mgr: ', this);
 		this.root = j.root;
-
 		this.CurrentDir = j.this_dir;
 		this.browser.empty();
 
@@ -1999,6 +2000,72 @@ var FileManager = new Class({
 		return el;
 	},
 
+	dir_gallery_set_actual_img: function(file, dg_el)
+	{
+		// calculate which thumb to use and how to center it:
+		var img_url, iw, ih, ds, mt, mb, ml, mr, ratio;
+
+		ds = this.options.thumbSize4DirGallery;
+		if (ds > 48)
+		{
+			img_url = file.thumb250;
+			iw = file.thumb250_width;
+			ih = file.thumb250_height;
+		}
+		else
+		{
+			img_url = file.thumb48;
+			iw = file.thumb48_width;
+			ih = file.thumb48_height;
+		}
+
+		// 'zoom' image to fit area:
+		if (iw > ds)
+		{
+			var redux = ds / iw;
+			iw *= redux;
+			ih *= redux;
+		}
+		if (ih > ds)
+		{
+			var redux = ds / ih;
+			iw *= redux;
+			ih *= redux;
+		}
+		iw = Math.round(iw);
+		ih = Math.round(ih);
+		ml = Math.round((ds - iw) / 2);
+		mr = ds - ml - iw;
+		mt = Math.round((ds - ih) / 2);
+		mb = ds - mt - ih;
+
+		Asset.image(img_url, {
+			styles: {
+				width: iw,
+				height: ih,
+				'margin-left': ml,
+				'margin-top': mt,
+				'margin-right': mr,
+				'margin-bottom': mb
+			},
+			onLoad: function() {
+				var img_el = this;
+				var img_div = dg_el.getElement('div.dir-gal-thumb-bg').setStyle('background-image', '');
+				img_div.adopt(img_el);
+			},
+			onError: function() {
+				self.diag.log('dirgallery image asset: error!');
+				var iconpath = self.assetBasePath + 'Images/Icons/Large/default-error.png';
+				dg_el.getElement('div.dir-gal-thumb-bg').setStyle('background-image', 'url(' + iconpath + ')');
+			},
+			onAbort: function() {
+				self.diag.log('dirgallery image asset: ABORT!');
+				var iconpath = self.assetBasePath + 'Images/Icons/Large/default-error.png';
+				dg_el.getElement('div.dir-gal-thumb-bg').setStyle('background-image', 'url(' + iconpath + ')');
+			}
+		});
+	},
+
 	/*
 	 * The old one-function-does-all fill() would take an awful long time when processing large directories. This function
 	 * contains the most costly code chunk of the old fill() and has adjusted the looping through the j.dirs[] and j.files[] lists
@@ -2082,7 +2149,7 @@ var FileManager = new Class({
 
 			editButtons.each(function(v) {
 				//icons.push(
-				new Asset.image(this.assetBasePath + 'Images/' + v + '.png', {title: this.language[v]}).addClass('browser-icon').set('opacity', 0).addEvent('mouseup', (function(e, target) {
+				Asset.image(this.assetBasePath + 'Images/' + v + '.png', {title: this.language[v]}).addClass('browser-icon').set('opacity', 0).addEvent('mouseup', (function(e, target) {
 					// this = el, self = FM instance
 					e.preventDefault();
 					this.store('edit', true);
@@ -2150,7 +2217,11 @@ var FileManager = new Class({
 					// This is just a raw image
 					el = this.list_row_maker((this.listType === 'thumb' ? (file.thumb48 ? file.thumb48 : file.icon48) : file.icon), file);
 
-					dg_el = this.dir_gallery_item_maker((file.thumb48 ? file.thumb48 : file.icon48), file);
+					dg_el = this.dir_gallery_item_maker(file.icon48, file);
+					if (file.thumb48)
+					{
+						this.dir_gallery_set_actual_img(file, dg_el);
+					}
 				}
 				else    // thumbs_deferred...
 				{
@@ -2189,7 +2260,10 @@ var FileManager = new Class({
 								else
 								{
 									list_row.getElement('span.fm-thumb-bg').setStyle('background-image', 'url(' + (this.listType === 'thumb' ? j.thumb48 : j.icon) + ')');
-									dg_el.getElement('div.dir-gal-thumb-bg').setStyle('background-image', 'url(' + j.thumb48 + ')');
+									if (j.thumb48)
+									{
+										this.dir_gallery_set_actual_img(j, dg_el);
+									}
 								}
 
 								// update the stored json for this file as well:
@@ -2299,7 +2373,7 @@ var FileManager = new Class({
 				if (this.options.destroy) editButtons.push('destroy');
 
 				editButtons.each(function(v) {
-					new Asset.image(this.assetBasePath + 'Images/' + v + '.png', {title: this.language[v]}).addClass('browser-icon').set('opacity', 0).addEvent('mouseup', (function(e, target) {
+					Asset.image(this.assetBasePath + 'Images/' + v + '.png', {title: this.language[v]}).addClass('browser-icon').set('opacity', 0).addEvent('mouseup', (function(e, target) {
 						// this = el, self = FM instance
 						e.preventDefault();
 						this.store('edit', true);

@@ -443,7 +443,7 @@ FileManager.Gallery = new Class({
 		mb = ch - mt - h;
 
 		var self = this;
-		var img = new Asset.image(pic, {
+		var img = Asset.image(pic, {
 			styles: {
 				width: w,
 				height: h,
@@ -518,7 +518,7 @@ FileManager.Gallery = new Class({
 
 		// store & display item in gallery:
 		var self = this;
-		var destroyIcon = new Asset.image(this.assetBasePath + 'Images/destroy.png').set({
+		var destroyIcon = Asset.image(this.assetBasePath + 'Images/destroy.png').set({
 			'class': 'filemanager-remove',
 			title: this.language.gallery.remove,
 			events: {
