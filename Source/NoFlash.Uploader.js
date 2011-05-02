@@ -188,7 +188,6 @@ FileManager.implement({
 			}
 			else if (j)
 			{
-				// self.onShow = true; // why exactly do we need to set this, what purpose does the default of NOT preselecting the thing we asked to preselect have?
 				self.load(self.dirname(j.path), j.name);
 			}
 			else

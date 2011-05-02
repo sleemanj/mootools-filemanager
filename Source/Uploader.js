@@ -335,7 +335,6 @@ FileManager.implement({
 				this.diag.log('upload:onComplete', info, cnt, fcnt);
 				// add a 5 second delay when there were upload errors:
 				(function() {
-					this.onShow = true;
 					this.load(this.CurrentDir.path, this.upload.lastFileUploaded);
 					// this.fillInfo();
 				}).bind(this).delay(this.upload.error_count > 0 ? 5500 : 1);

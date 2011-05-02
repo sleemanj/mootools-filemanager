@@ -919,7 +919,6 @@ var FileManager = new Class({
 			return;
 		}
 		this.fmShown = true;
-		this.onShow = false;
 
 		if (typeof preselect === 'undefined') preselect = null;
 		if (typeof loaddir === 'undefined') loaddir = null;
@@ -942,17 +941,11 @@ var FileManager = new Class({
 				loaddir = this.options.directory;
 			}
 		}
-		if (preselect)
-		{
-			this.diag.log('on show: set onShow on PRESELECT: ', preselect);
-			this.onShow = true;
-		}
 
 		// get and set history
 		if (typeof jsGET !== 'undefined') {
 			if (jsGET.get('fmFile')) {
 				this.diag.log('on show: set onShow on fmFile: ', jsGET.get('fmFile'));
-				this.onShow = true;
 			}
 			if (jsGET.get('fmListType') != null) {
 				$$('.filemanager-browserheader a.listType').set('opacity',0.5);
@@ -1815,13 +1808,9 @@ var FileManager = new Class({
 			span.removeClass('hover');
 		});
 
-		this.diag.log('# fill: file = ', j, ', onShow: ', this.onShow, ', mgr: ', this);
+		this.diag.log('# fill: JSON = ', j, ', mgr: ', this);
 		this.root = j.root;
 		this.CurrentDir = j.this_dir;
-		if (!this.onShow) {
-			this.diag.log('fill internal: fillInfo: file = ', j, j.this_dir);
-			this.fillInfo(j.this_dir); // XXXX
-		}
 		this.browser.empty();
 
 // Partikule
@@ -1847,15 +1836,16 @@ var FileManager = new Class({
 			this.showError('' + j.error);
 			return false;
 		}
-		var rootPath = j.root.slice(0,-1).split('/');
-		rootPath.pop();
+		var rootPath = '/' + j.root;
+		var rootParent = this.dirname(rootPath);
+		var rplen = rootParent.length;
 		current_path.split('/').each((function(folderName) {
 			if (!folderName) return;
 
 			pre.push(folderName);
-			var path = ('/'+pre.join('/')+'/').replace(j.root,'');
-			this.diag.log('on fill: display directory path chuncks: root = ', j.root, ', path: ' , path, ', folder: ', folderName);
-			if (rootPath.contains(folderName)) {
+			var path = ('/'+pre.join('/')+'/');
+			this.diag.log('on fill: display directory path chunks: JSON root = ', j.root, ', path: ' , path, ', folder: ', folderName, ', root: ', rootPath, ', parent: ', rootParent);
+			if (path.length <= rplen) {
 				// add non-clickable path
 				text.push(new Element('span', {'class': 'icon', text: folderName}));
 			} else {
@@ -1865,8 +1855,9 @@ var FileManager = new Class({
 						href: '#',
 						text: folderName
 					}).addEvent('click', (function(e) {
-						this.diag.log('path section - click event: ', e, path);
 						e.stop();
+						path = path.replace(j.root,'');
+						this.diag.log('## path section - click event: ', e, ', path: ', path);
 						this.load(path);
 					}).bind(this))
 				);
@@ -1972,6 +1963,9 @@ var FileManager = new Class({
 
 		// remember pagination position history
 		this.store_view_fill_startindex(startindex);
+
+		// reset the fillInfo fire marker:
+		this.fillInfoOnFillFired = false;
 
 		this.view_fill_timer = this.fill_chunkwise_1.delay(1, this, [startindex, endindex, endindex - startindex, pagesize, support_DnD_for_this_dir, starttime, els, kbd_dir, preselect]);
 
@@ -2335,8 +2329,8 @@ var FileManager = new Class({
 				el.inject(new Element('li',{'class':this.listType}).inject(this.browser)).store('parent', el.getParent());
 
 				// ->> LOAD the FILE/IMAGE from history when PAGE gets REFRESHED (only directly after refresh)
-				//this.diag.log('fill on PRESELECT (test): onShow = ', this.onShow, ', file = ', file, ', fmFile = ', fmFile, ', preselect = ', preselect);
-				if (this.onShow)
+				//this.diag.log('fill on PRESELECT (test): onShow = ', this.fillInfoOnFillFired, ', file = ', file, ', fmFile = ', fmFile, ', preselect = ', preselect);
+				if (!this.fillInfoOnFillFired)
 				{
 					if (preselect)
 					{
@@ -2348,6 +2342,7 @@ var FileManager = new Class({
 							file.element.addClass('selected');
 							this.diag.log('fill on PRESELECT: fillInfo: file = ', file);
 							this.fillInfo(file);
+							this.fillInfoOnFillFired = true;
 						}
 					}
 					else if (fmFile)
@@ -2360,12 +2355,8 @@ var FileManager = new Class({
 							file.element.addClass('selected');
 							this.diag.log('fill: fillInfo: file = ', file);
 							this.fillInfo(file);
+							this.fillInfoOnFillFired = true;
 						}
-					}
-					else
-					{
-						this.diag.log('fill: RESET onShow: file = ', file);
-						this.onShow = false;
 					}
 				}
 
@@ -2394,6 +2385,14 @@ var FileManager = new Class({
 
 // / Partikule
 			}
+		}
+
+		// when we get here, we have rendered all files in the current page and we know whether we have fired off a fillInfo on a preselect/history-recalled file now, or not:
+		if (!this.fillInfoOnFillFired)
+		{
+			this.diag.log('fill internal: fillInfo: file = ', j, j.this_dir);
+			this.fillInfo(j.this_dir);
+			this.fillInfoOnFillFired = true;
 		}
 
 		// check how much we've consumed so far:
