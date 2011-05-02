@@ -1802,17 +1802,13 @@ var FileManager = new Class({
 		this.CurrentDir = j.this_dir;
 		this.browser.empty();
 
-// Partikule
-// Add of the thumbnail list in the preview panel: blow away any pre-existing list now, as we'll generate a new one now:
-
+		// Adding the thumbnail list in the preview panel: blow away any pre-existing list now, as we'll generate a new one now:
 		this.dir_filelist.empty();
 
-// /Partikule
-
 		// set history
-		if (typeof jsGET !== 'undefined' && this.storeHistory && j.this_dir.mime === 'text/directory')
+		if (typeof jsGET !== 'undefined' && this.storeHistory)
 		{
-			jsGET.set({'fmPath': j.path});
+			jsGET.set({'fmPath': this.CurrentDir.path});
 		}
 
 		var current_path = this.normalize(this.root + this.CurrentDir.path);
