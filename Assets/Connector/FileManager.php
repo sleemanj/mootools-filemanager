@@ -2196,7 +2196,8 @@ class FileManager
 	{
 		$emsg = null;
 		$file_arg = null;
-		$legal_url = null;
+		$file = null;
+		$legal_dir_url = null;
 		$jserr = array(
 				'status' => 1
 			);
