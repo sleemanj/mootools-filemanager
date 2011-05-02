@@ -97,7 +97,7 @@ var FileManager = new Class({
 		standalone: true,                 // (boolean). Default to true. If set to false, returns the Filemanager without enclosing window / overlay.
 		parentContainer: null,            // (string). ID of the parent container. If not set, FM will consider its first container parent for fitSizes();
 		hideOnSelect: true,               // (boolean). Default to true. If set to false, it leavers the FM open after a picture select.
-		thumbSize4DirGallery: 120,		  // To set the thumb gallery container size for each thumb (dir-gal-thumb-bg); depending on size, it will pick either the small or large thumbnail provided by the backend and scale that one
+		thumbSize4DirGallery: 120,        // To set the thumb gallery container size for each thumb (dir-gal-thumb-bg); depending on size, it will pick either the small or large thumbnail provided by the backend and scale that one
 		mkServerRequestURL: null          // (function) specify your own alternative URL/POST data constructor when you use a framework/system which requires such.   function([object] fm_obj, [string] request_code, [assoc.array] post_data)
 	},
 
@@ -121,9 +121,7 @@ var FileManager = new Class({
 		this.droppables = [];
 		this.assetBasePath = this.options.assetBasePath.replace(/(\/|\\)*$/, '/');
 		this.root = null;
-// Problem here
 		this.CurrentDir = null;
-//		this.CurrentDir = {path:'/files', name:'files'};
 		this.listType = 'list';
 		this.dialogOpen = false;
 		this.storeHistory = false;
@@ -3242,7 +3240,7 @@ var FileManager = new Class({
 					var a;
 					var lt = '';
 					var m, e, v;
-					var multiobj = 0;	// count items dumped without inter-WS
+					var multiobj = 0;   // count items dumped without inter-WS
 					for (a in arguments)
 					{
 						multiobj++;
@@ -3269,7 +3267,7 @@ var FileManager = new Class({
 								switch (typeof v)
 								{
 								case 'function':
-									continue; 				// skip these
+									continue;               // skip these
 
 								case 'undefined':
 									lt += e + ': (undefined)';

@@ -1034,7 +1034,7 @@ div.filemanager-filelist .fi:hover .name {
 div.filemanager-filelist .fi .dir-gal-thumb-bg {
 	background-repeat: no-repeat;
 	background-position: center center;
-	/* 
+	/*
 	-- Size depends on the user's choice for gallery thumbs sizes
 	width: 100%;
 	height: 48px;
@@ -1072,10 +1072,10 @@ div.filemanager div.filemanager-diag-dump li span.key {
 }
 
 /*
-overlarger series ~ golden ratio: 0010, 0016, 0025, 0040, ... 
-
-Use these classes to tweak the look of the detail info dump. 
-*/
+ * overlarger series ~ golden ratio: 0010, 0016, 0025, 0040, ...
+ *
+ * Use these classes to tweak the look of the detail info dump.
+ */
 div.filemanager div.filemanager-diag-dump li span.key.overlarger0016 {
 	width: auto;    /* prevent key text from overlapping the data; that looks really ugly. */
 }
@@ -1121,8 +1121,8 @@ div.filemanager div.filemanager-diag-dump li img {
 	/*
 	width: 250px;
 	height: 250px;
-	
-	-- The <a> (and the <img> within!) are 'sized' in the JS code 
+
+	-- The <a> (and the <img> within!) are 'sized' in the JS code
 	*/
 	border: 1px solid #b2a0a0;
 	background: #eee2e2;

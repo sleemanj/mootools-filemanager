@@ -102,7 +102,7 @@ session_write_close();
 	</div>
 
 	<h1>FileManager Demo using No Flash</h1>
-	
+
 	<div class="example">
 		<button id="example1" class="BrowseExample">Open File-Manager</button>
 	</div>
