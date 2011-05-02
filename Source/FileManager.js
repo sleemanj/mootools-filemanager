@@ -2744,8 +2744,8 @@ var FileManager = new Class({
 
 			var tx_cfg = this.options.mkServerRequestURL(this, 'detail', {
 							directory: this.dirname(file.path),
-							// fixup for *directory* detail requests:    (file.mime === 'text/directory'
-							file: (file.mime === 'text/directory' && file.name === '') ? '/' : file.name,
+							// fixup for root directory detail requests:
+							file: (file.mime === 'text/directory' && file.path === '/') ? '/' : file.name,
 							filter: this.options.filter,
 							mode: 'auto'                    // provide either direct links to the thumbnails (when available in cache) or PHP event trigger URLs for delayed thumbnail image creation (performance optimization: faster page render)
 						});
