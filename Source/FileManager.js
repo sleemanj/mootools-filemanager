@@ -2043,7 +2043,9 @@ var FileManager = new Class({
 		mr = ds - ml - iw;
 		mt = Math.round((ds - ih) / 2);
 		mb = ds - mt - ih;
-
+		
+		var self = this;
+		
 		Asset.image(img_url, {
 			styles: {
 				width: iw,
