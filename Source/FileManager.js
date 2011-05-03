@@ -2523,7 +2523,7 @@ var FileManager = new Class({
 					// start the scroller
 					this.scroller.start();
 
-/*	Partikule
+/*  Partikule
 					this.diag.log('draggable:onBeforeStart', el);
 					var position = el.getPosition();
 					el.addClass('drag').setStyles({

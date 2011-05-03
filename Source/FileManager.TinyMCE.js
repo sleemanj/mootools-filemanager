@@ -25,9 +25,12 @@ FileManager.TinyMCE = function(options){
    * win: window object reference
    */
   return function(field, url, type, win){
-    var manager = new FileManager(Object.append({
+		var manager;                // jsLint warning fix
+		manager = new FileManager(Object.append({
       onComplete: function(path, file, mgr) {
-        if (!win.document) return;
+				if (!win.document)
+					return;
+				//path = manager.escapeRFC3986(path);
         win.document.getElementById(field).value = path;
         if (win.ImageDialog) {
 			win.ImageDialog.showPreviewImage(path, 1);
@@ -42,13 +45,6 @@ FileManager.TinyMCE = function(options){
 			'height': '90%'
 		}
 	}));
-    //manager.dragZIndex = 400002;
-    //manager.SwiffZIndex = 400003;
-    //manager.filemanager.setStyle('width','90%');
-    //manager.filemanager.setStyle('height','90%');
-    //manager.filemanager.setStyle('zIndex', 400001);
-    //if (manager.overlay) manager.overlay.el.setStyle('zIndex', 400000); // i.e. only do this when FileManager settings has 'hideOverlay: false' (default)
-    //document.id(manager.tips).setStyle('zIndex', 400010);
 	var src = win.document.getElementById(field).value;
 
 	src = decodeURI(src);
@@ -68,17 +64,4 @@ FileManager.TinyMCE = function(options){
     return manager;
   };
 };
-
-//FileManager.implement('SwiffZIndex', 400003);
-
-//FileManager.Dialog = new Class({
-//
-//  Extends: FileManager.Dialog,
-//
-//  initialize: function(text, options){
-//    this.parent(text, options);
-//    this.el.setStyle('zIndex', 400010);
-//    this.overlay.el.setStyle('zIndex', 400009);
-//  }
-//});
 
