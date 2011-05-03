@@ -2537,6 +2537,18 @@ var FileManager = new Class({
 						x: position.x - e.page.x,
 						y: position.y - e.page.y
 					};
+					/*
+					 * Use the element size (Y) for IE-fixing heuristics:
+					 * in IE the mouse is already quite some distance away before the onStart fires,
+					 * we need to restrict the vertical position of the dragged element in such a way
+					 * that it will reside 'under the mouse cursor'.
+					 */
+					var elsize = el.getSize();
+					if (dpos.y > 0)
+						dpos.y = -Math.round(elsize.y / 2);
+					else if (dpos.y < -elsize.y)
+						dpos.y = -Math.round(elsize.y / 2);
+
 					this.diag.log('~~~ positions at start: ', position, dpos, e);
 
 					el.store('delta_pos', dpos);
