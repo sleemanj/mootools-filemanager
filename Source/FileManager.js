@@ -2486,59 +2486,35 @@ var FileManager = new Class({
 				droppables: $$(this.droppables.combine(els[1])),
 				//stopPropagation: true,
 
-// Partikule
-// Changed the drag because of container : The container of the FM can be moved, the pos needs to be relative to the container, not to the page
-// Not perfect...
+				// We position the element relative to its original position; this ensures the drag always works with arbitrary container.
 				onDrag: (function(el, e)
 				{
-/*
-					this.imageadd.setStyles({
-						'left': e.page.x + 25,
-						'top': e.page.y + 25
-					});
-*/
-					var cpos = el.retrieve('cpos');
+					var dpos = el.retrieve('delta_pos');
+
 					el.setStyles({
 						display: 'block',
-						left: e.page.x - cpos.x + 12,
-						top: e.page.y - cpos.y + 10
+						left: e.page.x + dpos.x,
+						top: e.page.y + dpos.y
 					});
 
 					this.imageadd.setStyles({
-						'left': e.page.x - cpos.x,
-						'top': e.page.y - cpos.y + 12
+						'left': e.page.x + dpos.x - 12,
+						'top': e.page.y + dpos.y + 2
 					});
 				}).bind(this),
 
 				onBeforeStart: (function(el) {
-					var position = el.getPosition();
 					// you CANNOT use .container to get good x/y coords as in standalone mode, this <div> has a bogus position;
-					// Use the <div class="filemanager"> coords instead as that one is where the directory list is displayed anyhow:
 					//var cpos = this.container.getPosition();
-					var cpos = this.filemanager.getPosition();
-					// now what you really need is the x/y offset to the 'page':
-
-					el.store('cpos', cpos);
 
 					// start the scroller
 					this.scroller.start();
-
-/*  Partikule
-					this.diag.log('draggable:onBeforeStart', el);
-					var position = el.getPosition();
-					el.addClass('drag').setStyles({
-						'z-index': this.options.zIndex + 1500,
-						'position': 'absolute',
-						'width': el.getWidth() - el.getStyle('paddingLeft').toInt() - el.getStyle('paddingRight').toInt(),
-						'left': position.x,
-						'top': position.y
-					}).inject(this.container);
-*/
 				}).bind(this),
 
 				// FIX: do not deselect item when aborting dragging _another_ item!
 				onCancel: (function(el) {
 					this.diag.log('draggable:onCancel', el);
+					this.scroller.stop();
 					this.revert_drag_n_drop(el);
 					/*
 					 * Fixing the 'click' on FF+Opera (other browsers do get that event for any item which is made draggable):
@@ -2555,20 +2531,25 @@ var FileManager = new Class({
 				onStart: (function(el, e) {
 					this.diag.log('draggable:onStart', el);
 					this.tips.hide();
-// Partikule add
+
 					var position = el.getPosition();
-					var cpos = el.retrieve('cpos');
+					var dpos = {
+						x: position.x - e.page.x,
+						y: position.y - e.page.y
+					};
+					this.diag.log('~~~ positions at start: ', position, dpos, e);
+
+					el.store('delta_pos', dpos);
 
 					el.addClass('drag').setStyles({
 						'z-index': this.options.zIndex + 1500,
 						'position': 'absolute',
 						'width': el.getWidth() - el.getStyle('paddingLeft').toInt() - el.getStyle('paddingRight').toInt(),
-						//'width': el.getWidth() - el.getStyle('paddingLeft').toInt(),
 						'display': 'none',
-						'left': e.page.x - cpos.x + 10,
-						'top': e.page.y - cpos.y + 10
+						'left': e.page.x + dpos.x,
+						'top': e.page.y + dpos.y
 					}).inject(this.container);
-// /Partikule
+
 					el.fade(0.7).addClass('move');
 
 					this.diag.log('ENABLE keyboard up/down on drag start');
@@ -2589,6 +2570,7 @@ var FileManager = new Class({
 
 				onDrop: (function(el, droppable, e) {
 					this.diag.log('draggable:onDrop', el, droppable, e);
+					this.scroller.stop();
 
 					var is_a_move = !(e.control || e.meta);
 					this.drop_pending = 1 + is_a_move;
