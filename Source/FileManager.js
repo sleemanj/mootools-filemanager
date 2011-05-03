@@ -87,17 +87,17 @@ var FileManager = new Class({
 		hideClose: false,
 		hideOverlay: false,
 		hideQonDelete: false,
-		verbose: false,
+		hideOnSelect: true,               // (boolean). Default to true. If set to false, it leavers the FM open after a picture select.
+		thumbSize4DirGallery: 120,        // To set the thumb gallery container size for each thumb (dir-gal-thumb-bg); depending on size, it will pick either the small or large thumbnail provided by the backend and scale that one
 		zIndex: 1000,
 		styles: {},
 		listPaginationSize: 100,          // add pagination per N items for huge directories (speed up interaction)
 		listPaginationAvgWaitTime: 2000,  // adaptive pagination: strive to, on average, not spend more than this on rendering a directory chunk
-		propagateData: {},                // extra query parameters sent with every request to the backend
 
 		standalone: true,                 // (boolean). Default to true. If set to false, returns the Filemanager without enclosing window / overlay.
 		parentContainer: null,            // (string). ID of the parent container. If not set, FM will consider its first container parent for fitSizes();
-		hideOnSelect: true,               // (boolean). Default to true. If set to false, it leavers the FM open after a picture select.
-		thumbSize4DirGallery: 120,        // To set the thumb gallery container size for each thumb (dir-gal-thumb-bg); depending on size, it will pick either the small or large thumbnail provided by the backend and scale that one
+		propagateData: {},                // extra query parameters sent with every request to the backend
+		verbose: false,
 		mkServerRequestURL: null          // (function) specify your own alternative URL/POST data constructor when you use a framework/system which requires such.   function([object] fm_obj, [string] request_code, [assoc.array] post_data)
 	},
 
