@@ -371,10 +371,16 @@ var FileManager = new Class({
 				click: this.toggleList.bind(this)
 			});
 
-// Partikule : Add a scroller to scroll the browser list when moving a file
-		this.scroller = new Scroller(this.browserScroll);
-// /Partikule
-
+		// Add a scroller to scroll the browser list when dragging a file
+		this.scroller = new Scroller(this.browserScroll, {
+			onChange: function(x, y)
+			{
+				// restrict scrolling to Y direction only!
+				//this.element.scrollTo(x, y);
+				var scroll = this.element.getScroll();
+				this.element.scrollTo(scroll.x, y);
+			}
+		});
 
 // Partikule : Thumbs list in preview panel
 		this.browserMenu_thumbList = new Element('a',{
@@ -2506,7 +2512,13 @@ var FileManager = new Class({
 
 				onBeforeStart: (function(el) {
 					var position = el.getPosition();
-					el.store('cpos', this.container.getPosition());
+					// you CANNOT use .container to get good x/y coords as in standalone mode, this <div> has a bogus position;
+					// Use the <div class="filemanager"> coords instead as that one is where the directory list is displayed anyhow:
+					//var cpos = this.container.getPosition();
+					var cpos = this.filemanager.getPosition();
+					// now what you really need is the x/y offset to the 'page':
+
+					el.store('cpos', cpos);
 
 					// start the scroller
 					this.scroller.start();
@@ -2550,12 +2562,11 @@ var FileManager = new Class({
 					el.addClass('drag').setStyles({
 						'z-index': this.options.zIndex + 1500,
 						'position': 'absolute',
-						// why not minus padding-right? orig.:  'width': el.getWidth() - el.getStyle('paddingLeft').toInt() - el.getStyle('paddingRight').toInt(),
-						'width': el.getWidth() - el.getStyle('paddingLeft').toInt(),
+						'width': el.getWidth() - el.getStyle('paddingLeft').toInt() - el.getStyle('paddingRight').toInt(),
+						//'width': el.getWidth() - el.getStyle('paddingLeft').toInt(),
 						'display': 'none',
 						'left': e.page.x - cpos.x + 10,
 						'top': e.page.y - cpos.y + 10
-
 					}).inject(this.container);
 // /Partikule
 					el.fade(0.7).addClass('move');
