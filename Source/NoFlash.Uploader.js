@@ -124,6 +124,7 @@ FileManager.implement({
 			inputs: {},
 			resizer: null,
 			dummyframe: null,
+			dummyframe_active: false,     // prevent premature firing of the load event (hello, MSIE!) to cause us serious trouble in there
 
 			form: (new Element('form'))
 				//.set('action', tx_cfg.url)
@@ -144,6 +145,8 @@ FileManager.implement({
 
 					// Update curent dir path to form hidden field
 					self.upload.inputs['directory'].setProperty('value', self.CurrentDir.path);
+
+					self.upload.dummyframe_active = true; // NOW you may fire when ready...
 
 					self.upload.form.submit();
 				},
@@ -215,7 +218,11 @@ FileManager.implement({
 		this.upload.dummyframe.addEvent('load', function()
 		{
 			var iframe = this;
-			self.diag.log('NoFlash upload response: ', this, ', iframe: ', self.upload.dummyframe);
+			self.diag.log('NoFlash upload response: ', this, ', iframe: ', self.upload.dummyframe, ', ready:', (1 * self.upload.dummyframe_active));
+
+			// make sure we don't act on premature firing of the event in MSIE browsers:
+			if (!self.upload.dummyframe_active)
+				return;
 
 			self.browserLoader.fade(0);
 
