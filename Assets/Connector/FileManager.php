@@ -2400,6 +2400,9 @@ class FileManager
 					// (default quality is 100% for JPEG so we get the cleanest resized images here)
 					$img->resize($this->options['maxImageDimension']['width'], $this->options['maxImageDimension']['height'])->save();
 					unset($img);
+					
+					// source image has changed: nuke the cached metadata and then refetch the metadata = forced refetch
+					$meta = $this->getFileInfo($file, $legal_url, true);
 				}
 			}
 
@@ -4828,13 +4831,13 @@ class FileManager
 	 *
 	 * @return the info array as produced by getID3::analyze(), as part of a MTFMCacheEntry reference
 	 */
-	public function getFileInfo($file, $legal_url)
+	public function getFileInfo($file, $legal_url, $force_recheck = false)
 	{
 		// when hash exists in cache, return that one:
 		$meta = &$this->getid3_cache->pick($legal_url, $this);
 		assert($meta != null);
 		$mime_check = $meta->fetch('mime_type');
-		if (empty($mime_check))
+		if (empty($mime_check) || $force_recheck)
 		{
 			// cache entry is not yet filled: we'll have to do the hard work now and store it.
 			if (is_dir($file))
