@@ -44,6 +44,11 @@ if (0)
 	<script type="text/javascript" src="mootools-core.js"></script>
 	<script type="text/javascript" src="mootools-more.js"></script>
 
+	<script type="text/javascript">
+		// disable the autoinit of the milkbox (must be set before the FileManager.js loads the milkbox.js!)
+		__MILKBOX_NO_AUTOINIT__ = true;
+	</script>
+
 	<script type="text/javascript" src="../Source/FileManager.js"></script>
 	<script type="text/javascript" src="../Source/Gallery.js"></script>
 	<script type="text/javascript" src="../Source/Uploader/Fx.ProgressBar.js"></script>
@@ -310,9 +315,9 @@ if (0)
 							var metadata = files[key];
 
 							// make sure the full path starts with a '/' (legal_root_dir does NOT!); also normalize out the trailing/leading slashes in both path section strings
-							var full_path = mgr.normalize('/' + legal_root_dir + key);    // eqv. to: normalize('/' + legal_root_dir + metadata.path) as key === metadata.path
+							//var full_path = mgr.normalize('/' + legal_root_dir + key);    // eqv. to: normalize('/' + legal_root_dir + metadata.path) as key === metadata.path
 
-							if (typeof console !== 'undefined' && console.log) console.log('GALLERY.print loop: ', full_path, ', metadata: ', metadata);
+							if (typeof console !== 'undefined' && console.log) console.log('GALLERY.print loop: ', key, ', metadata: ', metadata);
 
 							var input2html = function(str)
 							{
@@ -352,7 +357,7 @@ if (0)
 
 							var el = new Element('div').adopt(
 								new Element('a', {
-									href: mgr.escapeRFC3986(full_path),
+									href: key,  // mgr.escapeRFC3986(full_path),
 									title: input2html(caption),             // encode as HTML, suitable for attribute values
 									'data-milkbox': 'gall1',
 									'data-milkbox-size': 'width: ' + metadata.width + ', height: ' + metadata.height,
@@ -406,7 +411,6 @@ if (0)
 				}
 			});
 			$('example4').addEvent('click', manager4.show.bind(manager4));
-
 
 
 			var slider = $('slider');
@@ -482,8 +486,22 @@ if (0)
 				}
 			});
 
-			// and set the inital value
+			// and set the initial value
 			$('setThumbSize').set('text', thumb_side_length);
+
+
+
+
+			// init the milkbox: use the zIndex base set by the FileManager:
+			this.milkbox = new Milkbox({
+				centered: true,
+				zIndex: manager4.options.zIndex + 4000,
+				//autoSizeMaxHeight: 0,
+				//autoSizeMaxWidth: 0,
+				autoSizeMinHeight: 60,
+				autoSizeMinWidth: 100,      // compensate for very small images: always show the controls, at least
+				marginTop:10
+			});
 		});
 	</script>
 </head>
