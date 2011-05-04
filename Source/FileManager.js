@@ -83,6 +83,7 @@ var FileManager = new Class({
 		download: false,
 		createFolders: false,
 		filter: '',
+		detailInfoMode: '+metaHTML',      // (string) whether you want to receive extra metadata on select/etc. and/or view this metadata in the preview pane (modes: '', '+metaHTML', '+metaJSON'. Modes may be combined)
 		hideOnClick: false,
 		hideClose: false,
 		hideOverlay: false,
@@ -2248,7 +2249,7 @@ var FileManager = new Class({
 										directory: this.dirname(file.path),
 										file: file.name,
 										filter: this.options.filter,
-										mode: 'direct'
+										mode: 'direct' + this.options.detailInfoMode
 									});
 
 						var req = new FileManager.Request({
@@ -2848,7 +2849,8 @@ var FileManager = new Class({
 							// fixup for root directory detail requests:
 							file: (file.mime === 'text/directory' && file.path === '/') ? '/' : file.name,
 							filter: this.options.filter,
-							mode: 'auto'                    // provide either direct links to the thumbnails (when available in cache) or PHP event trigger URLs for delayed thumbnail image creation (performance optimization: faster page render)
+							// provide either direct links to the thumbnails (when available in cache) or PHP event trigger URLs for delayed thumbnail image creation (performance optimization: faster page render):
+							mode: 'auto' + this.options.detailInfoMode
 						});
 
 			this.Request = new FileManager.Request({
@@ -2924,7 +2926,7 @@ var FileManager = new Class({
 										directory: this.dirname(file.path),
 										file: file.name,
 										filter: this.options.filter,
-										mode: 'direct'
+										mode: 'direct' + this.options.detailInfoMode
 									});
 
 						var req = new FileManager.Request({

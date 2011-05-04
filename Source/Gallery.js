@@ -573,7 +573,7 @@ FileManager.Gallery = new Class({
 							directory: this.dirname(file.path),
 							file: file.name,
 							filter: this.options.filter,
-							mode: 'direct'                          // provide direct links to the thumbnail files
+							mode: 'direct' + this.options.detailInfoMode           // provide direct links to the thumbnail files
 						});
 
 			var req = new FileManager.Request({
