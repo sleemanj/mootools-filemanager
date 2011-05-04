@@ -1314,6 +1314,19 @@ var FileManager = new Class({
 
 		this.browserLoader.fade(1);
 
+		if ((typeof jsGET !== 'undefined') && this.storeHistory)
+		{
+			if (file.mime !== 'text/directory')
+			{
+				// TODO: really, a full check should also check whether the fmPath equals the this.CurrentDir.path
+				if (file.name === jsGET.get('fmFile'))
+				{
+					// this will ensure the subsequent fill() action will revert the detail view to the directory details.
+					jsGET.remove(['fmFile']);
+				}
+			}
+		}
+
 		var tx_cfg = this.options.mkServerRequestURL(this, 'destroy', {
 						file: file.name,
 						directory: this.CurrentDir.path,
@@ -2821,7 +2834,7 @@ var FileManager = new Class({
 			if (file.mime !== 'text/directory')
 				jsGET.set({'fmFile': file.name});
 			else
-				jsGET.set({'fmFile': ''});
+				jsGET.remove(['fmFile']);
 		}
 
 		var icon = file.icon;
