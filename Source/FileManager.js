@@ -2058,6 +2058,8 @@ var FileManager = new Class({
 		mt = Math.round((ds - ih) / 2);
 		mb = ds - mt - ih;
 
+		var self = this;
+
 		Asset.image(img_url, {
 			styles: {
 				width: iw,
@@ -2453,8 +2455,8 @@ var FileManager = new Class({
 						},
 						'dblclick': function(e)
 						{
-							clearTimeout(this.dir_gallery_click_timer);
-							this.dir_gallery_click_timer = self.relayDblClick.delay(0, self, [e, this, dg_el, file, 2]);
+							clearTimeout(self.dir_gallery_click_timer);
+							self.dir_gallery_click_timer = self.relayDblClick.delay(0, self, [e, this, dg_el, file, 2]);
 						}
 					});
 
