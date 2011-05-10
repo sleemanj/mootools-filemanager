@@ -1133,7 +1133,6 @@ class FileManager
 	public function getSettings()
 	{
 		return array_merge(array(
-				'basedir' => $this->url_path2file_path($this->options['directory']),
 				'thumbnailCacheDir' => $this->thumbnailCacheDir,
 				'thumbnailCacheParentDir' => $this->thumbnailCacheParentDir,
 				'managedBaseDir' => $this->managedBaseDir
