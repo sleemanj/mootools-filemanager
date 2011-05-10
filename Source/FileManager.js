@@ -83,7 +83,7 @@ var FileManager = new Class({
 		download: false,
 		createFolders: false,
 		filter: '',
-		detailInfoMode: '+metaHTML',      // (string) whether you want to receive extra metadata on select/etc. and/or view this metadata in the preview pane (modes: '', '+metaHTML', '+metaJSON'. Modes may be combined)
+		detailInfoMode: '',               // (string) whether you want to receive extra metadata on select/etc. and/or view this metadata in the preview pane (modes: '', '+metaHTML', '+metaJSON'. Modes may be combined)
 		hideOnClick: false,
 		hideClose: false,
 		hideOverlay: false,
@@ -691,11 +691,14 @@ var FileManager = new Class({
 	 *   url:  (string) contains the URL sent to the server for the given event/request (which is always transmitted as a POST request)
 	 *   data: (assoc. array): extra parameters added to this POST. (Mainly there in case a framework wants to have the 'event' parameter
 	 *         transmitted as a POST data element, rather than having it included in the request URL itself in some form.
+	 *
+	 * WARNING: 'this' in here is actually **NOT** pointing at the FM instance; use 'fm_obj' for that!
+	 *
+	 *          In fact, 'this' points at the 'fm_obj.options' object, but consider that an 'undocumented feature'
+	 *          as it may change in the future without notice!
 	 */
 	mkServerRequestURL: function(fm_obj, request_code, post_data)
 	{
-		// WARNING: 'this' in here is actually **NOT** pointing at the FM instance; use 'fm_obj' for that!  (In fact, 'this' points at the 'options' object, but consider that an 'undocumented feature' as it may change in the future without notice!)
-
 		return {
 			url: fm_obj.options.url + (fm_obj.options.url.indexOf('?') == -1 ? '?' : '&') + Object.toQueryString({
 					event: request_code
