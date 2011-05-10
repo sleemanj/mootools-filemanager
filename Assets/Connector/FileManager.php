@@ -1688,8 +1688,8 @@ class FileManager
 		$icon48_e = FileManagerUtility::rawurlencode_path($icon48);
 		$icon = $this->getIconForError($emsg, 'is.default-error', true);
 		$icon_e = FileManagerUtility::rawurlencode_path($icon);
-		$jserr['thumb250'] = $icon48_e;
-		$jserr['thumb48'] = $icon48_e;
+		$jserr['thumb250'] = null;
+		$jserr['thumb48'] = null;
 		$jserr['icon48'] = $icon48_e;
 		$jserr['icon'] = $icon_e;
 
@@ -2729,7 +2729,7 @@ class FileManager
 	 */
 	public function extractDetailInfo($json_in, $legal_url, &$meta, $mime_filter, $mime_filters, $mode)
 	{
-		$auto_thumb_gen_mode = in_array('direct', $mode, true);
+		$auto_thumb_gen_mode = !in_array('direct', $mode, true);
 		$metaHTML_mode = in_array('metaHTML', $mode, true);
 		$metaJSON_mode = in_array('metaJSON', $mode, true);
 
