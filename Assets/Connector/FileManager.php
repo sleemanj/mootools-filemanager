@@ -1519,7 +1519,7 @@ class FileManager
 		$this->sendHttpHeaders('Content-Type: application/json');
 
 		// when we fail here, it's pretty darn bad and nothing to it.
-		// just push the error JSON as go.
+		// just push the error JSON and go.
 		echo json_encode($jserr);
 	}
 
@@ -1704,7 +1704,7 @@ class FileManager
 		$this->sendHttpHeaders('Content-Type: application/json');
 
 		// when we fail here, it's pretty darn bad and nothing to it.
-		// just push the error JSON as go.
+		// just push the error JSON and go.
 		echo json_encode($jserr);
 	}
 
@@ -1746,7 +1746,7 @@ class FileManager
 		try
 		{
 			if (!$this->options['destroy'])
-				throw new FileManagerException('disabled');
+				throw new FileManagerException('disabled:destroy');
 
 			$v_ex_code = 'nofile';
 
@@ -1847,7 +1847,7 @@ class FileManager
 		$this->sendHttpHeaders('Content-Type: application/json');
 
 		// when we fail here, it's pretty darn bad and nothing to it.
-		// just push the error JSON as go.
+		// just push the error JSON and go.
 		echo json_encode($jserr);
 	}
 
@@ -1896,7 +1896,7 @@ class FileManager
 		try
 		{
 			if (!$this->options['create'])
-				throw new FileManagerException('disabled');
+				throw new FileManagerException('disabled:create');
 
 			$v_ex_code = 'nofile';
 
@@ -1993,7 +1993,7 @@ class FileManager
 				catch (Exception $e)
 				{
 					// when we fail here, it's pretty darn bad and nothing to it.
-					// just push the error JSON as go.
+					// just push the error JSON and go.
 				}
 			}
 		}
@@ -2020,7 +2020,7 @@ class FileManager
 				catch (Exception $e)
 				{
 					// when we fail here, it's pretty darn bad and nothing to it.
-					// just push the error JSON as go.
+					// just push the error JSON and go.
 				}
 			}
 		}
@@ -2030,7 +2030,7 @@ class FileManager
 		$this->sendHttpHeaders('Content-Type: application/json');
 
 		// when we fail here, it's pretty darn bad and nothing to it.
-		// just push the error JSON as go.
+		// just push the error JSON and go.
 		echo json_encode($jserr);
 	}
 
@@ -2054,10 +2054,17 @@ class FileManager
 	 */
 	protected function onDownload()
 	{
+		$emsg = null;
+		$file_arg = null;
+		$file = null;
+		$jserr = array(
+				'status' => 1
+			);
+		
 		try
 		{
 			if (!$this->options['download'])
-				throw new FileManagerException('disabled');
+				throw new FileManagerException('disabled:download');
 
 			$v_ex_code = 'nofile';
 
@@ -2152,20 +2159,31 @@ class FileManager
 
 				fpassthru($fd);
 				fclose($fd);
+				return;
 			}
+			
+			$emsg = 'read_error';
 		}
 		catch(FileManagerException $e)
 		{
-			// we don't care whether it's a 404, a 403 or something else entirely: we feed 'em a 403 and that's final!
-			send_response_status_header(403);
-			echo $e->getMessage();
+			$emsg = $e->getMessage();
 		}
 		catch(Exception $e)
 		{
-			// we don't care whether it's a 404, a 403 or something else entirely: we feed 'em a 403 and that's final!
-			send_response_status_header(403);
-			echo $e->getMessage();
+			// catching other severe failures; since this can be anything and should only happen in the direst of circumstances, we don't bother translating
+			$emsg = $e->getMessage();
 		}
+
+		// we don't care whether it's a 404, a 403 or something else entirely: we feed 'em a 403 and that's final!
+		send_response_status_header(403);
+
+		$this->modify_json4exception($jserr, $emsg, 'file = ' . $this->mkSafe4Display($file_arg . ', destination path = ' . $file));
+		
+		$this->sendHttpHeaders('Content-Type: text/plain');        // Safer for iframes: the 'application/json' mime type would cause FF3.X to pop up a save/view dialog when transmitting these error reports!
+
+		// when we fail here, it's pretty darn bad and nothing to it.
+		// just push the error JSON and go.
+		echo json_encode($jserr);
 	}
 
 	/**
@@ -2215,7 +2233,7 @@ class FileManager
 		try
 		{
 			if (!$this->options['upload'])
-				throw new FileManagerException('disabled');
+				throw new FileManagerException('disabled:upload');
 
 			// MAY upload zero length files!
 			if (!isset($_FILES) || empty($_FILES['Filedata']) || empty($_FILES['Filedata']['name']))
@@ -2437,7 +2455,7 @@ class FileManager
 		$this->sendHttpHeaders('Content-Type: ' . $this->getPOSTparam('reportContentType', 'application/json'));
 
 		// when we fail here, it's pretty darn bad and nothing to it.
-		// just push the error JSON as go.
+		// just push the error JSON and go.
 		echo json_encode(array_merge($jserr, $_FILES));
 	}
 
@@ -2483,7 +2501,7 @@ class FileManager
 		try
 		{
 			if (!$this->options['move'])
-				throw new FileManagerException('disabled');
+				throw new FileManagerException('disabled:rn_mv_cp');
 
 			$v_ex_code = 'nofile';
 
@@ -2527,7 +2545,7 @@ class FileManager
 						// note: we do not support copying entire directories, though directory rename/move is okay
 						if ($is_copy && $is_dir)
 						{
-							$v_ex_code = 'disabled';
+							$v_ex_code = 'disabled:rn_mv_cp';
 						}
 						else if ($rename)
 						{
@@ -2662,7 +2680,7 @@ class FileManager
 		$this->sendHttpHeaders('Content-Type: application/json');
 
 		// when we fail here, it's pretty darn bad and nothing to it.
-		// just push the error JSON as go.
+		// just push the error JSON and go.
 		echo json_encode($jserr);
 	}
 
@@ -4656,7 +4674,16 @@ class FileManager
 			{
 				$extra1 = (!empty($e[1]) ? $this->mkSafe4Display($e[1]) : '');
 				$extra2 = (!empty($target_info) ? ' (' . $this->mkSafe4Display($target_info) . ')' : '');
-				$jserr['error'] = $emsg = '${backend.' . $e[0] . '}' . $extra1 . $extra2;
+				$jserr['error'] = $emsg = '${backend.' . $e[0] . '}';
+				if ($e[0] != 'disabled')
+				{
+					// only append the extra data when it's NOT the 'disabled on this server' message!
+					$jserr['error'] .=  $extra1 . $extra2;
+				}
+				else
+				{
+					$jserr['error'] .=  ' (${' . $extra1 . '})';
+				}
 			}
 			$jserr['status'] = 0;
 		}

@@ -1086,6 +1086,9 @@ var FileManager = new Class({
 	},
 
 	download: function(file) {
+		var self = this;
+		var dummyframe_active = false;
+
 		// the chained display:none code inside the Tips class doesn't fire when the 'Save As' dialog box appears right away (happens in FF3.6.15 at least):
 		if (this.tips.tip) {
 			this.tips.tip.setStyle('display', 'none');
@@ -1105,7 +1108,50 @@ var FileManager = new Class({
 			this.downloadForm = null;
 		}
 
-		this.downloadIframe = (new IFrame()).set({src: 'about:blank', name: '_downloadIframe'}).setStyles({display:'none'});
+		this.downloadIframe = new IFrame({
+				src: 'about:blank',
+				name: '_downloadIframe',
+				styles: {
+					display: 'none'
+				},
+			    events: {
+					load: function()
+					{
+						var iframe = this;
+						self.diag.log('download response: ', this, ', iframe: ', self.downloadIframe, ', ready: ', (1 * dummyframe_active));
+
+						// make sure we don't act on premature firing of the event in MSIE / Safari browsers:
+						if (!dummyframe_active)
+							return;
+
+						var response = null;
+						Function.attempt(function() {
+								response = iframe.contentDocument.documentElement.textContent;
+							},
+							function() {
+								response = iframe.contentWindow.document.innerText;
+							},
+							function() {
+								response = iframe.contentDocument.innerText;
+							},
+							function() {
+								response = "{status: 0, error: \"Download: download assumed okay: can't find response.\"}";
+							}
+						);
+
+						var j = JSON.decode(response);
+
+						if (j && !j.status)
+						{
+							self.showError('' + j.error);
+						}
+						else if (!j)
+						{
+							self.showError('bugger! No or faulty JSON response! ' + response);
+						}
+					}
+				}
+			});
 		this.menu.adopt(this.downloadIframe);
 
 		this.downloadForm = new Element('form', {target: '_downloadIframe', method: 'post', enctype: 'multipart/form-data'});
@@ -1125,6 +1171,8 @@ var FileManager = new Class({
 					{
 						this.downloadForm.adopt((new Element('input')).set({type: 'hidden', name: k, value: v}));
 					}.bind(this));
+
+		dummyframe_active = true;
 
 		return this.downloadForm.submit();
 	},
@@ -2387,12 +2435,9 @@ var FileManager = new Class({
 				}
 
 				editButtons = [];
-				// download icon
-				if (this.options.download) {
-					if (this.options.download) editButtons.push('download');
-				}
 
-				// rename, delete icon
+				// download, rename, delete icon
+				if (this.options.download) editButtons.push('download');
 				if (this.options.rename) editButtons.push('rename');
 				if (this.options.destroy) editButtons.push('destroy');
 
