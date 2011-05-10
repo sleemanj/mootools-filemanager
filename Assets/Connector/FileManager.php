@@ -1002,8 +1002,9 @@ class FileManager
 			'thumbnailPath' => null,                                                    // may sit outside options['directory'] but MUST be in the DocumentRoot tree
 			'thumbSmallSize' => 48,                                                     // Used for thumb48 creation
 			'thumbBigSize' => 250,                                                      // Used for thumb250 creation
-			'mimeTypesPath' => strtr(dirname(__FILE__), '\\', '/') . '/MimeTypes.ini',  // an absolute filesystem path anywhere; when relative, it will be assumed to be against SERVER['SCRIPT_NAME']
+			'mimeTypesPath' => strtr(dirname(__FILE__), '\\', '/') . '/MimeTypes.ini',  // an absolute filesystem path anywhere; when relative, it will be assumed to be against options['RequestScriptURI']
 			'documentRootPath' => null,                                                 // an absolute filesystem path pointing at URI path '/'. Default: SERVER['DOCUMENT_ROOT']
+			'RequestScriptURI' => null,												    // default is $_SERVER['SCRIPT_NAME']
 			'dateFormat' => 'j M Y - H:i',
 			'maxUploadSize' => 2600 * 2600 * 3,
 			// 'maxImageSize' => 99999,                                                 // OBSOLETED, replaced by 'suggestedMaxImageDimension'
@@ -1052,6 +1053,12 @@ class FileManager
 		$assumed_root = rtrim($assumed_root, '/');
 		$this->options['documentRootPath'] = $assumed_root;
 
+		// apply default to RequestScriptURI:
+		if (empty($this->options['RequestScriptURI']))
+		{
+			$this->options['RequestScriptURI'] = $this->getRequestScriptURI();
+		}
+
 		// only calculate the guestimated defaults when they are indeed required:
 		if ($this->options['directory'] == null || $this->options['assetBasePath'] == null || $this->options['thumbnailPath'] == null)
 		{
@@ -1085,7 +1092,7 @@ class FileManager
 
 		/*
 		 * make sure we start with a very predictable and LEGAL options['directory'] setting, so that the checks applied to the
-		 * (possibly) user specified value for this bugger acvtually can check out okay AS LONG AS IT'S INSIDE the DocumentRoot-based
+		 * (possibly) user specified value for this bugger actually can check out okay AS LONG AS IT'S INSIDE the DocumentRoot-based
 		 * directory tree:
 		 */
 		$new_root = $this->options['directory'];
@@ -1099,7 +1106,6 @@ class FileManager
 		$this->options['thumbnailPath'] = $this->rel2abs_url_path($this->options['thumbnailPath'] . '/');
 		$this->thumbnailCacheDir = $this->url_path2file_path($this->options['thumbnailPath']);  // precalculate this value; safe as we can assume the entire cache dirtree maps 1:1 to filesystem.
 		$this->thumbnailCacheParentDir = $this->url_path2file_path(self::getParentDir($this->options['thumbnailPath']));    // precalculate this value as well; used by scandir/view
-
 
 		$this->options['assetBasePath'] = $this->rel2abs_url_path($this->options['assetBasePath'] . '/');
 
@@ -4381,10 +4387,17 @@ class FileManager
 	 * For example, if the request was 'http://site.org/dir1/dir2/script.php', then this method will
 	 * return '/dir1/dir2/script.php'.
 	 *
-	 * This is equivalent to $_SERVER['SCRIPT_NAME']
+	 * By default, this is equivalent to $_SERVER['SCRIPT_NAME'].
+	 *
+	 * This default can be overridden by specifying the options['RequestScriptURI'] when invoking the constructor.
 	 */
 	public /* static */ function getRequestScriptURI()
 	{
+		if (!empty($this->options['RequestScriptURI']))
+		{
+			return $this->options['RequestScriptURI'];
+		}
+		
 		// see also: http://php.about.com/od/learnphp/qt/_SERVER_PHP.htm
 		$path = strtr($_SERVER['SCRIPT_NAME'], '\\', '/');
 
@@ -4400,7 +4413,6 @@ class FileManager
 	 */
 	public /* static */ function getRequestPath()
 	{
-		// see also: http://php.about.com/od/learnphp/qt/_SERVER_PHP.htm
 		$path = self::getParentDir($this->getRequestScriptURI());
 		$path = self::enforceTrailingSlash($path);
 
@@ -4609,7 +4621,7 @@ class FileManager
 		$url_path = $this->rel2abs_url_path($url_path);
 
 		$path = $this->options['documentRootPath'] . $url_path;
-		//$path = $this->normalize($path);    -- taken care of by rel2abs_url_path already
+
 		return $path;
 	}
 
