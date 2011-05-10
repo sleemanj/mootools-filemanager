@@ -1040,18 +1040,18 @@ class FileManager
 			$this->options['maxImageDimension'] = array('width' => $this->options['maxImageSize'], 'height' => $this->options['maxImageSize']);
 		}
 
-		$assumed_root = null;
+		$document_root_fspath = null;
 		if (!empty($this->options['documentRootPath']))
 		{
-			$assumed_root = realpath($this->options['documentRootPath']);
+			$document_root_fspath = realpath($this->options['documentRootPath']);
 		}
-		if (empty($assumed_root))
+		if (empty($document_root_fspath))
 		{
-			$assumed_root = realpath($_SERVER['DOCUMENT_ROOT']);
+			$document_root_fspath = realpath($_SERVER['DOCUMENT_ROOT']);
 		}
-		$assumed_root = strtr($assumed_root, '\\', '/');
-		$assumed_root = rtrim($assumed_root, '/');
-		$this->options['documentRootPath'] = $assumed_root;
+		$document_root_fspath = strtr($document_root_fspath, '\\', '/');
+		$document_root_fspath = rtrim($document_root_fspath, '/');
+		$this->options['documentRootPath'] = $document_root_fspath;
 
 		// apply default to RequestScriptURI:
 		if (empty($this->options['RequestScriptURI']))
@@ -1064,29 +1064,27 @@ class FileManager
 		{
 			$my_path = @realpath(dirname(__FILE__));
 			$my_path = strtr($my_path, '\\', '/');
-			if (!FileManagerUtility::endsWith($my_path, '/'))
-			{
-				$my_path .= '/';
-			}
-			$my_assumed_url_path = str_replace($assumed_root, '', $my_path);
-
+			$my_path = self::enforceTrailingSlash($my_path);
+			
 			// we throw an Exception here because when these do not apply, the user should have specified all three these entries!
-			if (empty($assumed_root) || empty($my_path) || !FileManagerUtility::startsWith($my_path, $assumed_root))
+			if (!FileManagerUtility::startsWith($my_path, $document_root_fspath))
 			{
 				throw new FileManagerException('nofile');
 			}
 
+			$my_url_path = str_replace($document_root_fspath, '', $my_path);
+
 			if ($this->options['directory'] == null)
 			{
-				$this->options['directory'] = $my_assumed_url_path . '../../Demos/Files/';
+				$this->options['directory'] = $my_url_path . '../../Demos/Files/';
 			}
 			if ($this->options['assetBasePath'] == null)
 			{
-				$this->options['assetBasePath'] = $my_assumed_url_path . '../../Demos/Files/../../Assets/';
+				$this->options['assetBasePath'] = $my_url_path . '../../Assets/';
 			}
 			if ($this->options['thumbnailPath'] == null)
 			{
-				$this->options['thumbnailPath'] = $my_assumed_url_path . '../../Demos/Files/../../Assets/Thumbs/';
+				$this->options['thumbnailPath'] = $my_url_path . '../../Assets/Thumbs/';
 			}
 		}
 
@@ -1095,9 +1093,7 @@ class FileManager
 		 * (possibly) user specified value for this bugger actually can check out okay AS LONG AS IT'S INSIDE the DocumentRoot-based
 		 * directory tree:
 		 */
-		$new_root = $this->options['directory'];
-		$this->options['directory'] = '/';      // use DocumentRoot temporarily as THE root for this optional transform
-		$this->options['directory'] = $this->rel2abs_url_path($new_root . '/');
+		$this->options['directory'] = $this->rel2abs_url_path($this->options['directory'] . '/');
 
 		$this->managedBaseDir = $this->url_path2file_path($this->options['directory']);
 
@@ -4539,9 +4535,12 @@ class FileManager
 	}
 
 	/**
-	 * Accept a URI relative or absolute LEGAL URI path and transform it to an absolute URI path, i.e. rooted against DocumentRoot.
+	 * Accept a relative or absolute LEGAL URI path and transform it to an absolute URI path, i.e. rooted against DocumentRoot.
 	 *
-	 * Relative paths are assumed to be relative to the current request path, i.e. the getRequestPath() produced path.
+	 * Relative paths are assumed to be relative to the options['directory'] directory. This makes them equivalent to absolute paths within
+	 * the LEGAL URI tree and this fact may seem odd. Alas, the FM frontend sends requests without the leading slash and it's those that
+	 * we wish to resolve here, after all. So, yes, this deviates from the general principle applied elesewhere in the code. :-(
+	 * Nevertheless, it's easier than scanning and tweaking the FM frontend everywhere.
 	 *
 	 * Note: as it uses normalize(), any illegal path will throw a FileManagerException
 	 *
@@ -4549,30 +4548,18 @@ class FileManager
 	 */
 	public function legal2abs_url_path($path)
 	{
+		$path = $this->rel2abs_legal_url_path($path);
+		
 		$root = $this->options['directory'];
 
-		$path = strtr($path, '\\', '/');
-		if (FileManagerUtility::startsWith($path, '/'))
-		{
-			// clip the trailing '/' off the $root path as $path has a leading '/' already:
-			$path = substr($root, 0, -1) . $path;
-		}
+		// clip the trailing '/' off the $root path as $path has a leading '/' already:
+		$path = substr($root, 0, -1) . $path;
 
-		$path = $this->rel2abs_url_path($path);
-
-		// but we MUST make sure the path is still a LEGAL URI, i.e. sutting inside options['directory']:
-		if (strlen($path) < strlen($root))
-			$path = self::enforceTrailingSlash($path);
-
-		if (!FileManagerUtility::startsWith($path, $root))
-		{
-			throw new FileManagerException('path_tampering:' . $path);
-		}
 		return $path;
 	}
 
 	/**
-	 * Accept a URI relative or absolute LEGAL URI path and transform it to an absolute LEGAL URI path, i.e. rooted against options['directory'].
+	 * Accept a relative or absolute LEGAL URI path and transform it to an absolute LEGAL URI path, i.e. rooted against options['directory'].
 	 *
 	 * Relative paths are assumed to be relative to the options['directory'] directory. This makes them equivalent to absolute paths within
 	 * the LEGAL URI tree and this fact may seem odd. Alas, the FM frontend sends requests without the leading slash and it's those that
@@ -4585,25 +4572,13 @@ class FileManager
 	 */
 	public function rel2abs_legal_url_path($path)
 	{
-		if (0) // TODO: remove the 'relative is based on options['directory']' hack when the frontend has been fixed...
+		$path = strtr($path, '\\', '/');
+		if (!FileManagerUtility::startsWith($path, '/'))
 		{
-			$path = $this->legal2abs_url_path($path);
-
-			$root = $this->options['directory'];
-
-			// clip the trailing '/' off the $root path before reduction:
-			$path = str_replace(substr($root, 0, -1), '', $path);
+			$path = '/' . $path;
 		}
-		else
-		{
-			$path = strtr($path, '\\', '/');
-			if (!FileManagerUtility::startsWith($path, '/'))
-			{
-				$path = '/' . $path;
-			}
 
-			$path = $this->normalize($path);
-		}
+		$path = $this->normalize($path);
 
 		return $path;
 	}
@@ -4625,7 +4600,7 @@ class FileManager
 	}
 
 	/**
-	 * Return the filesystem absolute path for the relative URI path or absolute LEGAL URI path.
+	 * Return the filesystem absolute path for the relative or absolute LEGAL URI path.
 	 *
 	 * Note: as it uses normalize(), any illegal path will throw an FileManagerException
 	 *
