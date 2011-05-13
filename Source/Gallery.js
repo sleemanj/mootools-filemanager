@@ -789,7 +789,7 @@ FileManager.Gallery = new Class({
 		var index = 0;
 		Object.each(this.files,function(file)
 		{
-			var path = this.escapeRFC3986(this.normalize('/' + this.root + file.file.path));  // the absolute URL for the given file, rawURLencoded
+			var path = (this.options.deliverPathAsLegalURL ? file.file.path : this.escapeRFC3986(this.normalize('/' + this.root + file.file.path)));  // the absolute URL for the given file, rawURLencoded
 			var caption = (file.caption || '');
 			serialized[path] = caption;
 			var m = Object.clone(file.file);

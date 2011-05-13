@@ -93,6 +93,8 @@ session_write_close();
 			 * we can go real fancy and rescale the images (thumbnails) shown: simply set a different 'thumb_side_length' value!
 			 */
 			var thumb_side_length = 100;
+			
+			var reported_paths_are_legal_url = true;
 
 			var manager4 = new FileManager.Gallery({
 				url: 'selectImage.php?exhibit=A', // 'manager.php', but with a bogus query parameter included: latest FM can cope with such an URI
@@ -112,6 +114,7 @@ session_write_close();
 				// selectable: false,
 				hideQonDelete: false,     // DO ask 'are you sure' when the user hits the 'delete' button
 				verbose: true,            // log a lot of activity to console (when it exists)
+				deliverPathAsLegalURL: !reported_paths_are_legal_url,
 				onShow: function(mgr) {
 					if (typeof console !== 'undefined' && console.log) console.log('GALLERY.onShow: ', mgr);
 					var obj;
@@ -120,12 +123,16 @@ session_write_close();
 						if (typeof console !== 'undefined' && console.log) console.log('GALLERY list: ', gallist);
 						obj = JSON.decode(gallist);
 					});
-					this.populate(obj, false);          // as we have the data in 'clean vanilla' form in a JSON object, we do NOT want the (default) URL decode process to be performed: no %20 --> ' ', etc. transform!
+					mgr.populate(obj, !reported_paths_are_legal_url);          // as we have the data in 'clean vanilla' form in a JSON object, we do NOT want the (default) URL decode process to be performed: no %20 --> ' ', etc. transform!
+
+					// just for fun: toggle the option, so the next round delivers the other type of paths:
+					mgr.options.deliverPathAsLegalURL = !reported_paths_are_legal_url;
 				},
 				onComplete: function(serialized, files, legal_root_dir, mgr){
 					if (typeof console !== 'undefined' && console.log) console.log('GALLERY.onComplete: ', serialized, ', files metadata: ', files, ', legal root: ', legal_root_dir, ', mgr: ', mgr);
 
 					example4.set('value', JSON.encode(serialized));
+					reported_paths_are_legal_url = mgr.options.deliverPathAsLegalURL;
 
 					gallery_json_metadata = files;
 					imgs_root_dir = legal_root_dir;
@@ -142,7 +149,7 @@ session_write_close();
 							var metadata = files[key];
 
 							// make sure the full path starts with a '/' (legal_root_dir does NOT!); also normalize out the trailing/leading slashes in both path section strings
-							//var full_path = mgr.normalize('/' + legal_root_dir + key);    // eqv. to: normalize('/' + legal_root_dir + metadata.path) as key === metadata.path
+							var full_path = (!reported_paths_are_legal_url ? key : mgr.escapeRFC3986(mgr.normalize('/' + legal_root_dir + key /* key === metadata.path in this case */ )));    
 
 							if (typeof console !== 'undefined' && console.log) console.log('GALLERY.print loop: ', key, ', metadata: ', metadata);
 
@@ -184,7 +191,7 @@ session_write_close();
 
 							var el = new Element('div').adopt(
 								new Element('a', {
-									href: key,  // mgr.escapeRFC3986(full_path),
+									href: full_path,
 									title: input2html(caption),             // encode as HTML, suitable for attribute values
 									'data-milkbox': 'gall1',
 									'data-milkbox-size': 'width: ' + metadata.width + ', height: ' + metadata.height,

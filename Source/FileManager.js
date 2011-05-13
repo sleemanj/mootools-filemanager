@@ -72,7 +72,7 @@ var FileManager = new Class({
 		 *                         fmobj   // reference to the FileManager instance which fired the event
 		 *                        )
 		 */
-		directory: '',
+		directory: '',                    // (string) the directory (relative path) which should be loaded on startup (show).
 		url: null,
 		assetBasePath: null,
 		language: 'en',
@@ -84,6 +84,7 @@ var FileManager = new Class({
 		createFolders: false,
 		filter: '',
 		detailInfoMode: '',               // (string) whether you want to receive extra metadata on select/etc. and/or view this metadata in the preview pane (modes: '', '+metaHTML', '+metaJSON'. Modes may be combined)
+		deliverPathAsLegalURL: false,     // (boolean) TRUE: deliver 'legal URL' paths, i.e. 'directory'-rooted, FALSE: deliver absolute URI paths.
 		hideOnClick: false,
 		hideClose: false,
 		hideOverlay: false,
@@ -743,7 +744,7 @@ var FileManager = new Class({
 		return encodeURI(s.toString()).replace(/\+/g, '%2B').replace(/#/g, '%23');
 	},
 	unescapeRFC3986: function(s) {
-		return decodeURI(s.toString());
+		return decodeURI(s.toString().replace(/%23/g, '#').replace(/%2B/g, '+'));
 	},
 
 	// -> catch a click on an element in the file/folder browser
@@ -1063,7 +1064,7 @@ var FileManager = new Class({
 
 		var file = this.Current.retrieve('file');
 		this.fireEvent('complete', [
-			this.escapeRFC3986(this.normalize('/' + this.root + file.path)), // the absolute URL for the selected file, rawURLencoded
+			(this.options.deliverPathAsLegalURL ? file.path : this.escapeRFC3986(this.normalize('/' + this.root + file.path))), // the absolute URL for the selected file, rawURLencoded
 			file,                 // the file specs: .name, .path, .size, .date, .mime, .icon, .icon48, .thumb48, .thumb250
 			this
 		]);
