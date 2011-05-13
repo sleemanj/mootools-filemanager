@@ -73,13 +73,18 @@ session_write_close();
 			var example4 = $('myGallery');
 			var gallery_json = {
 				"/rant_yellow.gif":"",
-				"/towers 46p 1v/00005.jpg":"texan hat #0005",
-				"/items with issues/20091103114923_untitled-8.jpg":"mosquito on blue",
-				"/items with issues/atomic-bomb-explosion [DesktopNexus.com].jpg":"",
-				"/items with issues/en porte-jarretelles - nukes EXIF dump in backend.jpg":"",
-				"/items with issues/Konachan_com_67642_long_hair_ribbons_suzumiya_haruhi_suzumiya_ha_1.png":"",
-				"/items with issues/manager-9.php.jpg":"",
-				"/items with issues/fixme_gap_yuu_plasm.png":""
+				"/smilies.gif":"The aspect ratio of this image is extreme; older versions completely screwed up the thumbnail views for such images as the aspect ratio really wasn't taken into account back then...",
+				"/txtmovementvh8.gif":"The aspect ratio of this image is extreme; older versions completely screwed up the thumbnail views for such images as the aspect ratio really wasn't taken into account back then...",
+				"/items with issues/%3cscript%3ealert(%22hello+world%22)%3b%3c%2fscript%3e%0d%0a.png":"(1/3) a series of three where the filename contains embedded HTML (URLencoded) and the FM can cope, but it doesn't get processed all too well by the gallery / tooltip code, or so it seems. Nothing harmful, it's still encoded, but this points at a possible failure mode re security there.",
+				"/items with issues/&#60;script&#62;alert(&#34;bang!&#34;);&#60;&#47;script&#62;.png":"(2/3) a series of three where the filename contains embedded HTML (URLencoded) and the FM can cope, but it doesn't get processed all too well by the gallery / tooltip code, or so it seems. Nothing harmful, it's still encoded, but this points at a possible failure mode re security there.",
+				"/items with issues/&lt;script&gt;alert(&quot;bang!&quot;);&lt;&#47;script&gt;.png":"(3/3) a series of three where the filename contains embedded HTML (URLencoded) and the FM can cope, but it doesn't get processed all too well by the gallery / tooltip code, or so it seems. Nothing harmful, it's still encoded, but this points at a possible failure mode re security there.",
+				"/stock from www.public-domain-image.com/!Holstein cow - 100% certified $(MOO).goodness().jpg":"There was a time when any % percent sign in a filename meant complete havoc!",
+				"/stock from www.public-domain-image.com/cherry (Paolo Neo) `~!@#$%^&()_+-={}[];',.X %23%2B X.jpg":"A lot was going wrong with characters in this particular filename. URLencoding wasn't exactly up to snuff, for one...",
+				"/stock from www.public-domain-image.com/red-water-lily-flower (Andrew McMillan).jpg":"",
+				"/stock from www.public-domain-image.com/#antipasto-food (Andrew McMillan).jpg":"Ah... the dash. A serious contender for the Maximum Shit Award, when it comes to filenames, paths and web code.",
+				"/stock from www.public-domain-image.com/& sunset.jpg":"",
+				"/stock from www.public-domain-image.com/fruits-vegetables-milk-and-yogurt (Peggy Greb, U.S. Department of Agriculture).jpg":"",
+				"/you may encounter possible long file name issues in here!/If I say I gotta yak, it doesn't mean I have a long-haired buffalo living in my backyard (Ron White).jpg":"Baby, these tooltips are <strong>snug</strong>!"
 			};
 			var gallery_json_metadata = {};
 			var imgs_root_dir = null;
