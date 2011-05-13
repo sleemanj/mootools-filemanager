@@ -31,7 +31,7 @@ if (!SITE_USES_ALIASES)
 else
 {
 	// you don't need the additional sophistication of this one when you don't need path mapping support
-	require(strtr(dirname(__FILE__), '\\', '/') . '/../Assets/Connector/FMgr4Alias.php');
+	require(strtr(dirname(__FILE__), '\\', '/') . '/../Assets/Connector/FileManagerWithAliasSupport.php');
 }
 
 

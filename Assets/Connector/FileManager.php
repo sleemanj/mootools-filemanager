@@ -15,7 +15,7 @@
  *
  * Copyright:
  *   Copyright (c) 2009-2011 [Christoph Pojer](http://cpojer.net)
- *   Backend: FileManager & FMgr4Alias Copyright (c) 2011 [Ger Hobbelt](http://hobbelt.com)
+ *   Backend: FileManager & FileManagerWithAliasSupport Copyright (c) 2011 [Ger Hobbelt](http://hobbelt.com)
  *
  * Dependencies:
  *   - Tooling.php
