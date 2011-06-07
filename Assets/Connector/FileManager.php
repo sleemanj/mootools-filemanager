@@ -530,7 +530,7 @@ if (!defined('DEVELOPMENT')) define('DEVELOPMENT', 0);   // make sure this #defi
 
 require(strtr(dirname(__FILE__), '\\', '/') . '/Tooling.php');
 require(strtr(dirname(__FILE__), '\\', '/') . '/Image.class.php');
-require(strtr(dirname(__FILE__), '\\', '/') . '/Assets/getid3/getid3.php');
+@require(strtr(dirname(__FILE__), '\\', '/') . '/Assets/getid3/getid3.php');
 
 
 
