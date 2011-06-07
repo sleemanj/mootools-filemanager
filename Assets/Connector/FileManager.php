@@ -55,6 +55,12 @@
  *   - MoveIsAuthorized_cb (function/reference, default is *null*) authentication + authorization callback which can be used to determine whether the given file / subdirectory may be renamed, moved or copied.
  *     Note that currently support for copying subdirectories is missing.
  *     The parameter $action = 'move'.
+ *     UploadIsComplete_cb (function/reference, default is *null*) Upload complete callback which can be used to post process a newly upload file.
+ *     The parameter $action = 'upload'.
+ *     DownloadIsComplete_cb (function/reference, default is *null*) Download complete callback which can be used to post process after a file has been downloaded file.
+ *     The parameter $action = 'download'.
+ *     DestroyIsComplete_cb (function/reference, default is *null*) Destroy complete callback which can be used to cleanup after a newly deleted/destroyed file.
+ *     The parameter $action = 'destroy'.
  *
  * Obsoleted options:
  *   - maxImageSize: (integer, default is 1024) The maximum number of pixels in both height and width an image can have, if the user enables "resize on upload". (This option is obsoleted by the 'suggestedMaxImageDimension' option.)
@@ -1033,6 +1039,11 @@ class FileManager
 			'CreateIsAuthorized_cb' => null,
 			'DestroyIsAuthorized_cb' => null,
 			'MoveIsAuthorized_cb' => null,
+			
+			'UploadIsComplete_cb' => null,
+			'DownloadIsComplete_cb' => null,
+			'DestroyIsComplete_cb' => null,
+			
 			'showHiddenFoldersAndFiles' => false,      // Hide dot dirs/files ?
 			'UsageMode' => MTFM_USAGE_BASIC
 		), (is_array($options) ? $options : array()));
@@ -1818,6 +1829,10 @@ class FileManager
 					'status' => 1,
 					'content' => 'destroyed'
 				));
+			
+			if (!empty($this->options['DestroyIsComplete_cb']) && function_exists($this->options['DestroyIsComplete_cb']))
+				$this->options['DestroyIsComplete_cb']($this, 'destroy', $fileinfo);	
+			
 			return;
 		}
 		catch(FileManagerException $e)
@@ -2141,6 +2156,10 @@ class FileManager
 				fpassthru($fd);
 				fclose($fd);
 			}
+			
+			if (!empty($this->options['DownloadIsComplete_cb']) && function_exists($this->options['DownloadIsComplete_cb']))
+				$this->options['DownloadIsComplete_cb']($this, 'download', $fileinfo);
+			
 		}
 		catch(FileManagerException $e)
 		{
@@ -2404,6 +2423,10 @@ class FileManager
 					'status' => 1,
 					'name' => basename($file)
 				));
+			
+			if (!empty($this->options['UploadIsComplete_cb']) && function_exists($this->options['UploadIsComplete_cb']))
+				$this->options['UploadIsComplete_cb']($this, 'upload', $fileinfo);
+			
 			return;
 		}
 		catch(FileManagerException $e)
