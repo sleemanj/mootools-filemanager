@@ -101,7 +101,7 @@ FileManager.Language.no = {
 	uploader: {
 		unknown: 'Ukjent feil',
 		sizeLimitMin: 'Du kan ikke laste opp "<em>${name}</em>" (${size}), minste tillatte størrelse er <strong>${size_min}</strong>!',
-		sizeLimitMax: 'Du kan ikke laste opp "<em>${name}</em>" (${size}), største tillatte størrelse er <strong>${size_max}</strong>!'
+		sizeLimitMax: 'Du kan ikke laste opp "<em>${name}</em>" (${size}), største tillatte størrelse er <strong>${size_max}</strong>!',
 		mod_security: 'Fikk ikke svar fra opplasteren, dette kan bety at "mod_security" er aktivert på serveren og at en av reglene i mod_security har avbrutt denne forespørselen. Hvis du ikke kan deaktivere mod_security, er det mulig du må bruke NoFlash opplasteren.'
 	},
 
