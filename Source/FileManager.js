@@ -90,6 +90,7 @@ var FileManager = new Class({
 		hideOverlay: false,
 		hideQonDelete: false,
 		hideOnSelect: true,               // (boolean). Default to true. If set to false, it leavers the FM open after a picture select.
+    showDirGallery: true,
 		thumbSize4DirGallery: 120,        // To set the thumb gallery container size for each thumb (dir-gal-thumb-bg); depending on size, it will pick either the small or large thumbnail provided by the backend and scale that one
 		zIndex: 1000,
 		styles: {},
@@ -2907,7 +2908,7 @@ var FileManager = new Class({
 			var dir = this.CurrentDir.path;
 
 			this.diag.log('fillInfo: request detail for file: ', Object.clone(file), ', dir: ', dir);
-
+      if(this.options.showDirGallery == false && file.mime === 'text/directory') return;
 			var tx_cfg = this.options.mkServerRequestURL(this, 'detail', {
 							directory: this.dirname(file.path),
 							// fixup for root directory detail requests:
