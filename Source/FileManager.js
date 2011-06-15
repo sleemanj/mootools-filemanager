@@ -83,6 +83,7 @@ var FileManager = new Class({
 		download: false,
 		createFolders: false,
 		filter: '',
+    keyboardNavigation: true,         // set to false to turn off keyboard navigation (tab, up/dn/pageup/pagedn etc)
 		detailInfoMode: '',               // (string) whether you want to receive extra metadata on select/etc. and/or view this metadata in the preview pane (modes: '', '+metaHTML', '+metaJSON'. Modes may be combined)
 		deliverPathAsLegalURL: false,     // (boolean) TRUE: deliver 'legal URL' paths, i.e. 'directory'-rooted, FALSE: deliver absolute URI paths.
 		hideOnClick: false,
@@ -603,9 +604,13 @@ var FileManager = new Class({
 				{
 					switch (e.key)
 					{
+            
 					case 'tab':
+            if(this.options.keyboardNavigation)
+            {
 						e.stop();
 						this.toggleList();
+            }
 						break;
 
 					case 'esc':
@@ -629,9 +634,12 @@ var FileManager = new Class({
 				case 'end':
 				case 'enter':
 				case 'delete':
+          if(this.options.keyboardNavigation)
+          {
 					e.preventDefault();
 					this.browserSelection(e.key);
 					break;
+          }
 				}
 			}).bind(this),
 
