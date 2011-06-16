@@ -2952,9 +2952,52 @@ var FileManager = new Class({
 					this.info_head.getElement('h1').set('text', file.name);
 					this.info_head.getElement('h1').set('title', file.name);
 
+          switch(j.mime.split('/')[0])
+          {
+            case 'audio':
+            {
+              var prev = this.preview.removeClass('filemanager-loading').set('html', '');
+                
+              var dl = new Element('dl')
+                         .adopt(new Element('dt').set('text', this.language['title']))
+                         .adopt(new Element('dd').set('text', j.title))
+                         .adopt(new Element('dt').set('text', this.language['artist']))
+                         .adopt(new Element('dd').set('text', j.artist))
+                         .adopt(new Element('dt').set('text', this.language['album']))
+                         .adopt(new Element('dd').set('text', j.album))
+                         .adopt(new Element('dt').set('text', this.language['length']))
+                         .adopt(new Element('dd').set('text', j.length))
+                         .adopt(new Element('dt').set('text', this.language['bitrate']))
+                         .adopt(new Element('dd').set('text', j.bitrate))
+                       .inject(prev);
+                       
+              prev = new Element('div', {class: 'filemanager-preview-content'}).inject(prev);
+              
+              var dewplayer = this.assetBasePath + '/dewplayer.swf';
+                            
+              new Element('object', {
+                  type:   'application/x-shockwave-flash', 
+                  data:   dewplayer,
+                  width:  200,
+                  height: 20,
+                  style: 'margin-left:auto;margin-right:auto;display:block;'
+                })
+                .adopt(new Element('param', {name:'wmode',     value:'transparent'}))
+                .adopt(new Element('param', {name:'movie',     value:dewplayer}))
+                .adopt(new Element('param', {name:'flashvars', value:'mp3='+j.url+'&volume=50&showtime=1'}))              
+               .inject(prev);
+               
+            }
+            break;
+            
+            default:          
+            {
 					// don't wait for the fade to finish to set up the new content
 					var prev = this.preview.removeClass('filemanager-loading').set('html', (j.content ? j.content.substitute(this.language, /\\?\$\{([^{}]+)\}/g) : '')).getElement('img.preview');
-
+            }
+            break;
+          }
+          
 					if (file.mime === 'text/directory')
 					{
 						// only show the image set when this directory is also the current one (other directory detail views can result from a directory rename operation!

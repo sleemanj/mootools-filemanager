@@ -2816,7 +2816,8 @@ class FileManager
 
 		$tstamp_str = date($this->options['dateFormat'], @filemtime($file));
 		$fsize = @filesize($file);
-
+		$fsize_str = empty($fsize) ? '-' : $this->format_bytes($fsize); // convert to T/G/M/K-bytes:
+    
 		$json = array_merge(array(
 				//'status' => 1,
 				//'mimetype' => $mime,
@@ -2826,21 +2827,14 @@ class FileManager
 			),
 			array(
 				'path' => $legal_url,
+				'url'  => $url,
 				'name' => $filename,
 				'date' => $tstamp_str,
 				'mime' => $mime,
-				'size' => $fsize
+				'size' => $fsize,
+				'modified' => @filemtime($file),
+				'size_str' => $fsize_str
 			));
-
-		if (empty($fsize))
-		{
-			$fsize_str = '-';
-		}
-		else
-		{
-			// convert to T/G/M/K-bytes:
-			$fsize_str = $this->format_bytes($fsize);
-		}
 
 		$content = '<dl>
 						<dt>${modified}</dt>
@@ -3070,13 +3064,17 @@ class FileManager
 				$title = $this->mkSafeUTF8($this->getID3infoItem($fi, $this->getID3infoItem($fi, '???', 'tags', 'id3v1', 'title', 0), 'tags', 'id3v2', 'title', 0));
 				$artist = $this->mkSafeUTF8($this->getID3infoItem($fi, $this->getID3infoItem($fi, '???', 'tags', 'id3v1', 'artist', 0), 'tags', 'id3v2', 'artist', 0));
 				$album = $this->mkSafeUTF8($this->getID3infoItem($fi, $this->getID3infoItem($fi, '???', 'tags', 'id3v1', 'album', 0), 'tags', 'id3v2', 'album', 0));
-
+				$length =  $this->mkSafeUTF8($this->getID3infoItem($fi, '???', 'playtime_string'));
+				$bitrate = round($this->getID3infoItem($fi, 0, 'bitrate') / 1000);
+				
+        $json = array_merge($json, array('title' => $title, 'artist' => $artist, 'album' => $album, 'length' => $length, 'bitrate' => $bitrate));
+        
 				$content .= '
 						<dt>${title}</dt><dd>' . $title . '</dd>
 						<dt>${artist}</dt><dd>' . $artist . '</dd>
 						<dt>${album}</dt><dd>' . $album . '</dd>
-						<dt>${length}</dt><dd>' . $this->mkSafeUTF8($this->getID3infoItem($fi, '???', 'playtime_string')) . '</dd>
-						<dt>${bitrate}</dt><dd>' . round($this->getID3infoItem($fi, 0, 'bitrate') / 1000) . 'kbps</dd>
+						<dt>${length}</dt><dd>' . $length . '</dd>
+						<dt>${bitrate}</dt><dd>' . $bitrate . 'kbps</dd>
 					</dl>';
 				$content_dl_term = true;
 				break;
