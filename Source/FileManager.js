@@ -85,6 +85,8 @@ var FileManager = new Class({
 		filter: '',
     keyboardNavigation: true,         // set to false to turn off keyboard navigation (tab, up/dn/pageup/pagedn etc)
 		detailInfoMode: '',               // (string) whether you want to receive extra metadata on select/etc. and/or view this metadata in the preview pane (modes: '', '+metaHTML', '+metaJSON'. Modes may be combined)
+    previewHandlers: {},              // [partial] mimetype: function, function is called with previewArea (DOM element, put preview in here), fileDetails
+                                      // eg { 'audio': function(previewArea,fileDetails){ previewArea.adopt(new Element('div', {text:'Hello World'});} }                            
 		deliverPathAsLegalURL: false,     // (boolean) TRUE: deliver 'legal URL' paths, i.e. 'directory'-rooted, FALSE: deliver absolute URI paths.
 		hideOnClick: false,
 		hideClose: false,
@@ -120,6 +122,12 @@ var FileManager = new Class({
 		this.options.mkServerRequestURL = this.mkServerRequestURL;
 
 		this.setOptions(options);
+    
+    if(typeof this.options.previewHandlers.audio === 'undefined')
+    {
+      this.options.previewHandlers.audio = this.audioPreview.bind(this);
+    }
+    
 		this.diag.verbose = this.options.verbose;
 		this.ID = String.uniqueID();
 		this.droppables = [];
@@ -2951,51 +2959,21 @@ var FileManager = new Class({
 
 					this.info_head.getElement('h1').set('text', file.name);
 					this.info_head.getElement('h1').set('title', file.name);
+          
+          // don't wait for the fade to finish to set up the new content
+          var prev = this.preview.removeClass('filemanager-loading').set('html', '');
 
-          switch(j.mime.split('/')[0])
+          if(typeof this.options.previewHandlers[j.mime] === 'function')
           {
-            case 'audio':
-            {
-              var prev = this.preview.removeClass('filemanager-loading').set('html', '');
-                
-              var dl = new Element('dl')
-                         .adopt(new Element('dt').set('text', this.language['title']))
-                         .adopt(new Element('dd').set('text', j.title))
-                         .adopt(new Element('dt').set('text', this.language['artist']))
-                         .adopt(new Element('dd').set('text', j.artist))
-                         .adopt(new Element('dt').set('text', this.language['album']))
-                         .adopt(new Element('dd').set('text', j.album))
-                         .adopt(new Element('dt').set('text', this.language['length']))
-                         .adopt(new Element('dd').set('text', j.length))
-                         .adopt(new Element('dt').set('text', this.language['bitrate']))
-                         .adopt(new Element('dd').set('text', j.bitrate))
-                       .inject(prev);
-                       
-              prev = new Element('div', {class: 'filemanager-preview-content'}).inject(prev);
-              
-              var dewplayer = this.assetBasePath + '/dewplayer.swf';
-                            
-              new Element('object', {
-                  type:   'application/x-shockwave-flash', 
-                  data:   dewplayer,
-                  width:  200,
-                  height: 20,
-                  style: 'margin-left:auto;margin-right:auto;display:block;'
-                })
-                .adopt(new Element('param', {name:'wmode',     value:'transparent'}))
-                .adopt(new Element('param', {name:'movie',     value:dewplayer}))
-                .adopt(new Element('param', {name:'flashvars', value:'mp3='+j.url+'&volume=50&showtime=1'}))              
-               .inject(prev);
-               
-            }
-            break;
-            
-            default:          
-            {
-					// don't wait for the fade to finish to set up the new content
-					var prev = this.preview.removeClass('filemanager-loading').set('html', (j.content ? j.content.substitute(this.language, /\\?\$\{([^{}]+)\}/g) : '')).getElement('img.preview');
-            }
-            break;
+            this.options.previewHandlers[j.mime](prev, j);
+          }
+          else if(typeof this.options.previewHandlers[j.mime.split('/')[0]] === 'function')
+          {
+            this.options.previewHandlers[j.mime.split('/')[0]](prev, j);
+          }
+          else
+          {
+            prev.set('html', (j.content ? j.content.substitute(this.language, /\\?\$\{([^{}]+)\}/g) : '')).getElement('img.preview');           
           }
           
 					if (file.mime === 'text/directory')
@@ -3156,6 +3134,40 @@ var FileManager = new Class({
 		}
 	},
 
+  audioPreview: function(previewArea, fileDetails)
+  {
+    var dl = new Element('dl')
+                .adopt(new Element('dt').set('text', this.language['title']))
+                .adopt(new Element('dd').set('text', fileDetails.title))
+                .adopt(new Element('dt').set('text', this.language['artist']))
+                .adopt(new Element('dd').set('text', fileDetails.artist))
+                .adopt(new Element('dt').set('text', this.language['album']))
+                .adopt(new Element('dd').set('text', fileDetails.album))
+                .adopt(new Element('dt').set('text', this.language['length']))
+                .adopt(new Element('dd').set('text', fileDetails.length))
+                .adopt(new Element('dt').set('text', this.language['bitrate']))
+                .adopt(new Element('dd').set('text', fileDetails.bitrate))
+              .inject(previewArea);
+              
+    previewArea = new Element('div', {class: 'filemanager-preview-content'}).inject(previewArea);
+    
+    var dewplayer = this.assetBasePath + '/dewplayer.swf';
+                  
+    new Element('object', {
+        type:   'application/x-shockwave-flash', 
+        data:   dewplayer,
+        width:  200,
+        height: 20,
+        style: 'margin-left:auto;margin-right:auto;display:block;'
+      })
+      .adopt(new Element('param', {name:'wmode',     value:'transparent'}))
+      .adopt(new Element('param', {name:'movie',     value:dewplayer}))
+      .adopt(new Element('param', {name:'flashvars', value:'mp3='+fileDetails.url+'&volume=50&showtime=1'}))              
+      .inject(previewArea);           
+      
+    return previewArea.parentNode;
+  },
+  
 	showFunctions: function(icon,appearOn,opacityBefore,opacityAfter) {
 		var opacity = [opacityBefore || 1, opacityAfter || 0];
 		icon.set({
