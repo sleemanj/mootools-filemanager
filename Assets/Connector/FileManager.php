@@ -3439,7 +3439,7 @@ class FileManager
    
   public function analyze_file($file, $legal_url)
   {
-    if($this->options['useGetID3IfAvailable'] && class_exists('getID3') || file_exists(strtr(dirname(__FILE__), '\\', '/') . '/Assets/getid3/getid3.php'))
+    if($this->options['useGetID3IfAvailable'] && (class_exists('getID3') || file_exists(strtr(dirname(__FILE__), '\\', '/') . '/Assets/getid3/getid3.php')))
     {
       // Note delaying requiring getiD3 until now, because it is big and we don't need it if the data is cached already.
       if(!class_exists('GetId3'))
@@ -3449,8 +3449,8 @@ class FileManager
 
       $id3 = new getID3();
       $id3->setOption(array('encoding' => 'UTF-8'));
-      $id3->analyze($file);
-      $rv = $this->getid3->info;
+      $id3->analyze($file);      
+      $rv = $id3->info;
       if (empty($rv['mime_type']))
       {
         // guarantee to produce a mime type, at least!
@@ -3473,7 +3473,7 @@ class FileManager
       {
         $rv['mime_type'] = $this->getMimeFromExt($legal_url);     // guestimate mimetype when content sniffing didn't work
       }
-      
+                  
       switch(preg_replace('/\/.*$/', '', $rv['mime_type']))
       {
         case 'image':
