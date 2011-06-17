@@ -526,7 +526,6 @@ if (!defined('DEVELOPMENT')) define('DEVELOPMENT', 0);   // make sure this #defi
 
 require(strtr(dirname(__FILE__), '\\', '/') . '/Tooling.php');
 require(strtr(dirname(__FILE__), '\\', '/') . '/Image.class.php');
-require(strtr(dirname(__FILE__), '\\', '/') . '/Assets/getid3/getid3.php');
 
 
 
@@ -1031,7 +1030,8 @@ class FileManager
 			'CreateIsAuthorized_cb' => null,
 			'DestroyIsAuthorized_cb' => null,
 			'MoveIsAuthorized_cb' => null,
-			'showHiddenFoldersAndFiles' => false      // Hide dot dirs/files ?
+			'showHiddenFoldersAndFiles' => false,      // Hide dot dirs/files ?
+			'useGetID3IfAvailable' => true
 		), (is_array($options) ? $options : array()));
 
 		// transform the obsoleted/deprecated options:
@@ -1111,12 +1111,6 @@ class FileManager
 			throw new FileManagerException('nofile');
 		}
 		$this->options['mimeTypesPath'] = strtr($this->options['mimeTypesPath'], '\\', '/');
-
-		// getID3 is slower as it *copies* the image to the temp dir before processing: see GetDataImageSize().
-		// This is done as getID3 can also analyze *embedded* images, for which this approach is required.
-		$this->getid3 = new getID3();
-		$this->getid3->setOption(array('encoding' => 'UTF-8'));
-		//$this->getid3->encoding = 'UTF-8';
 
 		$this->getid3_cache = new MTFMCache(MTFM_MIN_GETID3_CACHESIZE);
 
@@ -3412,7 +3406,113 @@ class FileManager
 		return str_replace('$', '&#36;', $getid3_info_obj);
 	}
 
+  /** Return an array of information about a file.
+   *
+   *    IFF the getID3 library (GPL) is available, it will be used.
+   *    ELSE IF FileInfo extention is available, we will try that for getting mimetype
+   *    ELSE do it manually
+   *
+   *  == All Files ==
+   *  mime_type
+   *
+   *  == Images ==   
+   *  video:[resolution_x, resolution_y] 
+   *  jpg:exif:IFD0:[Software, DateTime]
+   *
+   *  == Zip Files ==
+   *  zip:files (an array (name => size|files))
+   *
+   *  == Flash Files ==
+   *  swf:header:[frame_width, frame_height, frame_count, length]
+   *
+   *  == Audio Files ==
+   *  tags:id3v1:[title,artist,album]    
+   *  playtime_string
+   *  bitrate
+   *
+   *  == Video Files ==
+   *  audio:[dataformat,sample_rate,bitrate,bitrate_mode,channels,codec,streams]
+   *  video:[dataformat,bitrate,bitrate_mode,frame_rate,resolution_x,resolution_y,pixel_aspect_ratio,codec]
+   *  bitrate
+   *  playtime_string
+   */
+   
+  public function analyze_file($file, $legal_url)
+  {
+    if($this->options['useGetID3IfAvailable'] && class_exists('getID3') || file_exists(strtr(dirname(__FILE__), '\\', '/') . '/Assets/getid3/getid3.php'))
+    {
+      // Note delaying requiring getiD3 until now, because it is big and we don't need it if the data is cached already.
+      if(!class_exists('GetId3'))
+      {
+        require(strtr(dirname(__FILE__), '\\', '/') . '/Assets/getid3/getid3.php');
+      }
 
+      $id3 = new getID3();
+      $id3->setOption(array('encoding' => 'UTF-8'));
+      $id3->analyze($file);
+      $rv = $this->getid3->info;
+      if (empty($rv['mime_type']))
+      {
+        // guarantee to produce a mime type, at least!
+        $rv['mime_type'] = $this->getMimeFromExt($legal_url);     // guestimate mimetype when content sniffing didn't work
+      }
+      
+      return $rv;
+    }
+    else
+    {
+      $rv = array();
+      
+      if(function_exists('finfo_open') && defined('FILEINFO_MIME_TYPE'))
+      {
+        if(!isset($this->_finfo)) $this->_finfo = finfo_open(FILEINFO_MIME_TYPE);
+        $rv['mime_type'] = finfo_file($this->_finfo, $file);        
+      }
+      
+      if(!@$rv['mime_type'])
+      {
+        $rv['mime_type'] = $this->getMimeFromExt($legal_url);     // guestimate mimetype when content sniffing didn't work
+      }
+      
+      switch(preg_replace('/\/.*$/', '', $rv['mime_type']))
+      {
+        case 'image':
+        {
+          $size = getimagesize($file);
+          if($size !== FALSE)
+          {
+            $rv['video']['resolution_x'] = $size[0];
+            $rv['video']['resolution_y'] = $size[1];                        
+          }
+          
+          if(function_exists('exif_imagetype') && exif_imagetype($file) !== FALSE)
+          {
+            $rv['exif'] = exif_read_data($file, 0, true);    
+            $rv['jpg']['exif'] = $rv['exif']; // Not strictly true!
+          }
+        }
+        break;
+        
+        case 'audio':
+        {
+          switch($rv['mime_type'])
+          {
+            case 'audio/mpeg':
+            {
+              if(function_exists('id3_get_tag'))
+              {
+                $tags = id3_get_tag($file);
+                $rv['tags']['id3v1'] = $tags; // Not strictly true!                
+              }
+            }            
+          }
+        }
+        break;
+      }
+      
+      return $rv;
+    }
+  }
 
 	/**
 	 * Extract an embedded image from the getID3 info data.
@@ -4858,18 +4958,8 @@ class FileManager
 			}
 			else
 			{
-				$this->getid3->analyze($file);
-
-				$rv = $this->getid3->info;
-				if (empty($rv['mime_type']))
-				{
-					// guarantee to produce a mime type, at least!
-					$meta->store('mime_type', $this->getMimeFromExt($file));     // guestimate mimetype when content sniffing didn't work
-				}
-				else
-				{
-					$meta->store('mime_type', $rv['mime_type']);
-				}
+        $rv = $this->analyze_file($file, $legal_url);
+        $meta->store('mime_type', $rv['mime_type']);        
 				$meta->store('analysis', $rv);
 			}
 		}
