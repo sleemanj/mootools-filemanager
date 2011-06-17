@@ -3387,12 +3387,16 @@ class FileManager
 
 		for ($i = 2; $i < $argc; $i++)
 		{
+      $index = func_get_arg($i);
 			if (!is_array($getid3_info_obj))
 			{
+        // the getID3 library seems to return an array for id3 tags, the fall back does not, we
+        // will just short circuit this, it'll be fine.
+        if($i == $argc-1 && $index === 0) return $getid3_info_obj;
+        
 				return $default_value;
 			}
 
-			$index = func_get_arg($i);
 			if (array_key_exists($index, $getid3_info_obj))
 			{
 				$getid3_info_obj = $getid3_info_obj[$index];
@@ -3499,12 +3503,17 @@ class FileManager
           {
             case 'audio/mpeg':
             {
-              if(function_exists('id3_get_tag'))
-              {
-                $tags = id3_get_tag($file);
-                $rv['tags']['id3v1'] = $tags; // Not strictly true!                
+              require_once(strtr(dirname(__FILE__), '\\', '/') . '/ID3.class.php');
+              $ID3 = new id3Parser();
+              $tags = $ID3->read($file);
+              switch($tags['id3'])
+              {                
+                case 1: $rv['tags']['id3v1'] = $tags; 
+                default: $rv['tags']['id3v2'] = $tags;
               }
+              
             }            
+            break;
           }
         }
         break;
@@ -3513,6 +3522,8 @@ class FileManager
       return $rv;
     }
   }
+
+
 
 	/**
 	 * Extract an embedded image from the getID3 info data.
