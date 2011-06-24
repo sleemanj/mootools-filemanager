@@ -307,7 +307,7 @@ this.Milkbox = new Class({
 			}
 		});
 
-		this.loadComplete($(swfObj),fileObj.caption);
+		this.loadComplete(document.id(swfObj),fileObj.caption);
 	},
 
 	loadHtml:function(fileObj){
@@ -783,7 +783,7 @@ var MilkboxDisplay= new Class({
 				'margin':0,
 				'padding':0
 			}
-		}).inject($(document.body));
+		}).inject(document.id(document.body));
 
 		this.mainbox = new Element('div', {
 			'id':'mbox-mainbox',
@@ -801,7 +801,7 @@ var MilkboxDisplay= new Class({
 				'marginTop':(this.options.centered ? -(this.options.init_height/2) : ''),
 				'top':(this.options.centered ? '50%' : '')
 			}
-		}).inject($(document.body));
+		}).inject(document.id(document.body));
 
 		this.filebox = new Element('div#mbox-filebox').inject(this.mainbox);
 
