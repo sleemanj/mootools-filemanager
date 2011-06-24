@@ -710,7 +710,7 @@ var FileManager = new Class({
 		}
 		else
 		{
-			var parent = (this.options.parentContainer != null ? $(this.options.parentContainer) : this.container.getParent());
+			var parent = (this.options.parentContainer != null ? document.id(this.options.parentContainer) : this.container.getParent());
 			if (parent)
 			{
 				parentSize = parent.getSize();
@@ -2943,7 +2943,7 @@ var FileManager = new Class({
 			opacity: opacity[1]
 		});
 
-		$(appearOn).addEvents({
+		document.id(appearOn).addEvents({
 			mouseenter: (function() {
 							this.set('opacity', opacity[0]);
 						}).bind(icon),
