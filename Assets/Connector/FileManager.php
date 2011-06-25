@@ -2133,28 +2133,10 @@ class FileManager
 				$fi = pathinfo($legal_url);
 
 				$hdrs = array();
-				// see also: http://www.boutell.com/newfaq/creating/forcedownload.html
-				switch ($mime)
-				{
-				// add here more mime types for different file types and special handling by the client on download
-				case 'application/pdf':
-					$hdrs[] = 'Content-Type: ' . $mime;
-					break;
-
-				default:
-					$hdrs[] = 'Content-Type: application/octet-stream';
-					break;
-				}
-				$hdrs[] = 'Content-Disposition: attachment; filename="' . $fi['basename'] . '"'; // use 'attachment' to force a download
-				$hdrs[] = 'Content-length: ' . $fsize;
-				$hdrs[] = 'Expires: 0';
-				$hdrs[] = 'Cache-Control: must-revalidate, post-check=0, pre-check=0';
-				$hdrs[] = '!Cache-Control: private'; // flag as FORCED APPEND; use this to open files directly
-
-				$this->sendHttpHeaders($hdrs);
-
-				fpassthru($fd);
+				$hdrs[] = 'Location: http://'.$_SERVER['HTTP_HOST'].$this->legal2abs_url_path($legal_url);
 				fclose($fd);
+				
+				$this->sendHttpHeaders($hdrs);
 			}
 			
 			if (!empty($this->options['DownloadIsComplete_cb']) && function_exists($this->options['DownloadIsComplete_cb']))

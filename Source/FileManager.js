@@ -132,7 +132,6 @@ var FileManager = new Class({
 		this.view_fill_json = null;      // the latest JSON array describing the entire list; used with pagination to hop through huge dirs without repeatedly consulting the server.
 		this.listPaginationLastSize = this.options.listPaginationSize;
 		this.Request = null;
-		this.downloadIframe = null;
 		this.downloadForm = null;
 		this.drag_is_active = false;
 		this.ctrl_key_pressed = false;
@@ -1096,13 +1095,6 @@ var FileManager = new Class({
 			this.tips.tip.setStyle('display', 'none');
 		}
 
-		// discard old iframe, if it exists:
-		if (this.downloadIframe)
-		{
-			// remove from the menu (dispose) and trash it (destroy)
-			this.downloadIframe.dispose().destroy();
-			this.downloadIframe = null;
-		}
 		if (this.downloadForm)
 		{
 			// remove from the menu (dispose) and trash it (destroy)
@@ -1110,10 +1102,7 @@ var FileManager = new Class({
 			this.downloadForm = null;
 		}
 
-		this.downloadIframe = (new IFrame()).set({src: 'about:blank', name: '_downloadIframe'}).setStyles({display:'none'});
-		this.menu.adopt(this.downloadIframe);
-
-		this.downloadForm = new Element('form', {target: '_downloadIframe', method: 'post', enctype: 'multipart/form-data'});
+		this.downloadForm = new Element('form', {target: '_blank', method: 'post', enctype: 'multipart/form-data'});
 		this.menu.adopt(this.downloadForm);
 
 		var tx_cfg = this.options.mkServerRequestURL(this, 'download', Object.merge({},
