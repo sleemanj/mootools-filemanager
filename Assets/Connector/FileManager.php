@@ -2131,6 +2131,13 @@ class FileManager
 			{
 				$fsize = filesize($file);
 				$fi = pathinfo($legal_url);
+				
+				// Based on the gist here: https://gist.github.com/854168
+				// Reference: http://codeutopia.net/blog/2009/03/06/sending-files-better-apache-mod_xsendfile-and-php/
+				// We should:
+				// 1. try to use Apache mod_xsendfile
+				// 2. Try to chunk the file into pieces
+				// 3. If the file is sufficiently small, send it directly
 
 				$hdrs = array();
 				// see also: http://www.boutell.com/newfaq/creating/forcedownload.html
@@ -2145,15 +2152,44 @@ class FileManager
 					$hdrs[] = 'Content-Type: application/octet-stream';
 					break;
 				}
+				
 				$hdrs[] = 'Content-Disposition: attachment; filename="' . $fi['basename'] . '"'; // use 'attachment' to force a download
-				$hdrs[] = 'Content-length: ' . $fsize;
-				$hdrs[] = 'Expires: 0';
-				$hdrs[] = 'Cache-Control: must-revalidate, post-check=0, pre-check=0';
-				$hdrs[] = '!Cache-Control: private'; // flag as FORCED APPEND; use this to open files directly
+				
+				// Content length isn't requied for mod_xsendfile (Apache handles this for us)
+				$modx = in_array('mod_xsendfile', apache_get_modules());
+				if ($modx)
+				{
+					$hdrs[] = 'X-Sendfile: '.$file);
+				}
+				else
+				{
+					$hdrs[] = 'Content-length: ' . $fsize;
+					$hdrs[] = 'Expires: 0';
+					$hdrs[] = 'Cache-Control: must-revalidate, post-check=0, pre-check=0';
+					$hdrs[] = '!Cache-Control: private'; // flag as FORCED APPEND; use this to open files directly
+				}
 
 				$this->sendHttpHeaders($hdrs);
+				
+				if (!$modx)
+				{
+					$chunksize = 4*1024; // 4KB blocks
+					if ($fsize > $chunksize)
+					{
+						@set_time_limit(0);
+						while (!feof($fd))
+						{
+							echo @fread($fd, $chunksize);
+							ob_flush();
+							flush();
+						}
+					}
+					else
+					{
+						fpassthru($fd);
+					}
+				}
 
-				fpassthru($fd);
 				fclose($fd);
 			}
 			
