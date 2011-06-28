@@ -2159,7 +2159,7 @@ class FileManager
 				$modx = in_array('mod_xsendfile', apache_get_modules());
 				if ($modx)
 				{
-					$hdrs[] = 'X-Sendfile: '.$file);
+					$hdrs[] = 'X-Sendfile: '.$file;
 				}
 				else
 				{
