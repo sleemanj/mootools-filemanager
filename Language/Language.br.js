@@ -19,12 +19,12 @@ FileManager.Language.br = {
 	cancel: 'Cancelar',
 	error: 'Erro',
 
-	information: 'InformaÁ„o',
+	information: 'Informa√Å‚Äûo',
 	type: 'Tipo:',
 	size: 'Tamanho:',
 	dir: 'Caminho:',
-	modified: '⁄ltima modificaÁ„o:',
-	preview: 'PrÈ-visualizaÁ„o',
+	modified: '‚ÅÑltima modifica√Å‚Äûo:',
+	preview: 'Pr√à-visualiza√Å‚Äûo',
 	close: 'Fechar',
 	destroy: 'Apagar',
 	destroyfile: 'Tem certeza que deseja apagar este arquivo?',
@@ -33,9 +33,9 @@ FileManager.Language.br = {
 	renamefile: 'Por favor especifique o novo nome do arquivo:',
 
 	download: 'Download',
-	nopreview: '<i>PrÈ-visualizaÁ„o indisponÌvel</i>',
+	nopreview: '<i>Pr√à-visualiza√Å‚Äûo indispon√åvel</i>',
 
-	title: 'TÌtulo:',
+	title: 'T√åtulo:',
 	artist: 'Artista:',
 	album: 'Album:',
 	length: 'Tamanho:',
@@ -43,7 +43,7 @@ FileManager.Language.br = {
 
 	deselect: 'Desfazer',
 
-	nodestroy: 'Apagar arquivos est· desabilitado neste servidor.',
+	nodestroy: 'Apagar arquivos est¬∑ desabilitado neste servidor.',
 
 	toggle_side_boxes: 'Thumbnail view',
 	toggle_side_list: 'List view',
@@ -52,15 +52,15 @@ FileManager.Language.br = {
 	drag_n_drop_disabled: 'Drag & drop has been temporarily disabled for this directory',
 	goto_page: 'Go to page',
 
-	'backend.disabled': 'N„o È permitido enviar arquivos neste servidor.',
-	'backend.authorized': 'VocÍ n„o est· autenticado para enviar arquivos neste servidor.',
-	'backend.path': 'A pasta especificada n„o existe. Por favor contate o administrador do site.',
-	'backend.exists': 'A pasta especificada j· existe. Por favor contate o administrador do site.',
-	'backend.mime': 'O tipo de arquivo especificado n„o È permitido.',
-	'backend.extension': 'O arquivo enviado È de tipo desconhecido ou proibido.',
-	'backend.size': 'O tamanho do arquivo enviado È muito grande para ser processado neste servidor. Por favor, envie um arquivo menor.',
+	'backend.disabled': 'N‚Äûo √à permitido enviar arquivos neste servidor.',
+	'backend.authorized': 'Voc√ç n‚Äûo est¬∑ autenticado para enviar arquivos neste servidor.',
+	'backend.path': 'A pasta especificada n‚Äûo existe. Por favor contate o administrador do site.',
+	'backend.exists': 'A pasta especificada j¬∑ existe. Por favor contate o administrador do site.',
+	'backend.mime': 'O tipo de arquivo especificado n‚Äûo √à permitido.',
+	'backend.extension': 'O arquivo enviado √à de tipo desconhecido ou proibido.',
+	'backend.size': 'O tamanho do arquivo enviado √à muito grande para ser processado neste servidor. Por favor, envie um arquivo menor.',
 	'backend.partial': 'O arquivo enviado foi corrompido, por favor envie o arquivo novamente.',
-	'backend.nofile': 'N„o existe arquivo especificado para ser enviado.',
+	'backend.nofile': 'N‚Äûo existe arquivo especificado para ser enviado.',
 	'backend.default': 'Erro no envio do arquivo.',
 	'backend.path_not_writable': 'You do not have write/upload permissions for this directory.',
 	'backend.filename_maybe_too_large': 'The filename/path is probably too long for the server filesystem. Please retry with a shorter file name.',
@@ -100,15 +100,15 @@ FileManager.Language.br = {
 	/* FU */
 	uploader: {
 		unknown: 'Erro desconhecido',
-		sizeLimitMin: 'N„o È permitido anexar "<em>${name}</em>" (${size}), o tamanho mÌnimo para o arquivo È de <strong>${size_min}</strong>!',
-		sizeLimitMax: 'N„o È permitido anexar "<em>${name}</em>" (${size}), o tamanho m·ximo para o arquivo È de <strong>${size_max}</strong>!',
+		sizeLimitMin: 'N‚Äûo √à permitido anexar "<em>${name}</em>" (${size}), o tamanho m√ånimo para o arquivo √à de <strong>${size_min}</strong>!',
+		sizeLimitMax: 'N‚Äûo √à permitido anexar "<em>${name}</em>" (${size}), o tamanho m¬∑ximo para o arquivo √à de <strong>${size_max}</strong>!',
 		mod_security: 'No response was given from the uploader, this may mean that "mod_security" is active on the server and one of the rules in mod_security has cancelled this request.  If you can not disable mod_security, you may need to use the NoFlash Uploader.'
 	},
 
 	flash: {
-		hidden: 'Para habilitar o uploader, desbloqueie a funÁ„o em seu browser e recarregue a p·gina (veja Adblock).',
-		disabled: 'Para habilitar o uploader, habilite o arquivo Flash e recarregue a p·gina (veja Flashblock).',
-		flash: 'Para enviar arquivos È necess·rio instalar o <a href="http://www.adobe.com/shockwave/download/download.cgi?P1_Prod_Version=ShockwaveFlash">Adobe Flash Player</a>.'
+		hidden: 'Para habilitar o uploader, desbloqueie a fun√Å‚Äûo em seu browser e recarregue a p¬∑gina (veja Adblock).',
+		disabled: 'Para habilitar o uploader, habilite o arquivo Flash e recarregue a p¬∑gina (veja Flashblock).',
+		flash: 'Para enviar arquivos √à necess¬∑rio instalar o <a href="http://www.adobe.com/shockwave/download/download.cgi?P1_Prod_Version=ShockwaveFlash">Adobe Flash Player</a>.'
 	},
 
 	resizeImages: 'Redimensionar imagens grandes ao enviar',
