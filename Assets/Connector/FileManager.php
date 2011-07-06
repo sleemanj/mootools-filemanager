@@ -2156,7 +2156,7 @@ class FileManager
 				$hdrs[] = 'Content-Disposition: attachment; filename="' . $fi['basename'] . '"'; // use 'attachment' to force a download
 				
 				// Content length isn't requied for mod_xsendfile (Apache handles this for us)
-				$modx = in_array('mod_xsendfile', apache_get_modules());
+				$modx = function_exists('apache_get_modules') && in_array('mod_xsendfile', apache_get_modules());
 				if ($modx)
 				{
 					$hdrs[] = 'X-Sendfile: '.$file;
