@@ -2176,6 +2176,14 @@ class FileManager
 					$chunksize = 4*1024; // 4KB blocks
 					if ($fsize > $chunksize)
 					{
+						// Turn off compression which prevents files from being re-assembled properly (especially zip files)
+						function_exists('apache_setenv') && @apache_setenv('no-gzip', 1);
+						@ini_set('zlib.output_compression', 0);
+						
+						// Turn off any additional buffering by the server
+						@ini_set('implicit_flush', 1);
+						
+						// Disable any timeouts
 						@set_time_limit(0);
 						while (!feof($fd))
 						{
