@@ -72,7 +72,7 @@ var FileManager = new Class({
 		 *                         fmobj   // reference to the FileManager instance which fired the event
 		 *                        )
 		 */
-		directory: '',
+		directory: '',                    // (string) the directory (relative path) which should be loaded on startup (show).
 		url: null,
 		assetBasePath: null,
 		language: 'en',
@@ -83,12 +83,17 @@ var FileManager = new Class({
 		download: false,
 		createFolders: false,
 		filter: '',
-		detailInfoMode: '+metaHTML',      // (string) whether you want to receive extra metadata on select/etc. and/or view this metadata in the preview pane (modes: '', '+metaHTML', '+metaJSON'. Modes may be combined)
+    keyboardNavigation: true,         // set to false to turn off keyboard navigation (tab, up/dn/pageup/pagedn etc)
+		detailInfoMode: '',               // (string) whether you want to receive extra metadata on select/etc. and/or view this metadata in the preview pane (modes: '', '+metaHTML', '+metaJSON'. Modes may be combined)
+    previewHandlers: {},              // [partial] mimetype: function, function is called with previewArea (DOM element, put preview in here), fileDetails
+                                      // eg { 'audio': function(previewArea,fileDetails){ previewArea.adopt(new Element('div', {text:'Hello World'});} }                            
+		deliverPathAsLegalURL: false,     // (boolean) TRUE: deliver 'legal URL' paths, i.e. 'directory'-rooted, FALSE: deliver absolute URI paths.
 		hideOnClick: false,
 		hideClose: false,
 		hideOverlay: false,
 		hideQonDelete: false,
 		hideOnSelect: true,               // (boolean). Default to true. If set to false, it leavers the FM open after a picture select.
+    showDirGallery: true,
 		thumbSize4DirGallery: 120,        // To set the thumb gallery container size for each thumb (dir-gal-thumb-bg); depending on size, it will pick either the small or large thumbnail provided by the backend and scale that one
 		zIndex: 1000,
 		styles: {},
@@ -117,6 +122,12 @@ var FileManager = new Class({
 		this.options.mkServerRequestURL = this.mkServerRequestURL;
 
 		this.setOptions(options);
+    
+    if(typeof this.options.previewHandlers.audio === 'undefined')
+    {
+      this.options.previewHandlers.audio = this.audioPreview.bind(this);
+    }
+    
 		this.diag.verbose = this.options.verbose;
 		this.ID = String.uniqueID();
 		this.droppables = [];
@@ -601,9 +612,13 @@ var FileManager = new Class({
 				{
 					switch (e.key)
 					{
+            
 					case 'tab':
+            if(this.options.keyboardNavigation)
+            {
 						e.stop();
 						this.toggleList();
+            }
 						break;
 
 					case 'esc':
@@ -627,9 +642,12 @@ var FileManager = new Class({
 				case 'end':
 				case 'enter':
 				case 'delete':
+          if(this.options.keyboardNavigation)
+          {
 					e.preventDefault();
 					this.browserSelection(e.key);
 					break;
+          }
 				}
 			}).bind(this),
 
@@ -691,11 +709,14 @@ var FileManager = new Class({
 	 *   url:  (string) contains the URL sent to the server for the given event/request (which is always transmitted as a POST request)
 	 *   data: (assoc. array): extra parameters added to this POST. (Mainly there in case a framework wants to have the 'event' parameter
 	 *         transmitted as a POST data element, rather than having it included in the request URL itself in some form.
+	 *
+	 * WARNING: 'this' in here is actually **NOT** pointing at the FM instance; use 'fm_obj' for that!
+	 *
+	 *          In fact, 'this' points at the 'fm_obj.options' object, but consider that an 'undocumented feature'
+	 *          as it may change in the future without notice!
 	 */
 	mkServerRequestURL: function(fm_obj, request_code, post_data)
 	{
-		// WARNING: 'this' in here is actually **NOT** pointing at the FM instance; use 'fm_obj' for that!  (In fact, 'this' points at the 'options' object, but consider that an 'undocumented feature' as it may change in the future without notice!)
-
 		return {
 			url: fm_obj.options.url + (fm_obj.options.url.indexOf('?') == -1 ? '?' : '&') + Object.toQueryString({
 					event: request_code
@@ -740,7 +761,7 @@ var FileManager = new Class({
 		return encodeURI(s.toString()).replace(/\+/g, '%2B').replace(/#/g, '%23');
 	},
 	unescapeRFC3986: function(s) {
-		return decodeURI(s.toString());
+		return decodeURI(s.toString().replace(/%23/g, '#').replace(/%2B/g, '+'));
 	},
 
 	// -> catch a click on an element in the file/folder browser
@@ -1060,7 +1081,7 @@ var FileManager = new Class({
 
 		var file = this.Current.retrieve('file');
 		this.fireEvent('complete', [
-			this.escapeRFC3986(this.normalize('/' + this.root + file.path)), // the absolute URL for the selected file, rawURLencoded
+			(this.options.deliverPathAsLegalURL ? file.path : this.escapeRFC3986(this.normalize('/' + this.root + file.path))), // the absolute URL for the selected file, rawURLencoded
 			file,                 // the file specs: .name, .path, .size, .date, .mime, .icon, .icon48, .thumb48, .thumb250
 			this
 		]);
@@ -1083,6 +1104,9 @@ var FileManager = new Class({
 	},
 
 	download: function(file) {
+		var self = this;
+		var dummyframe_active = false;
+
 		// the chained display:none code inside the Tips class doesn't fire when the 'Save As' dialog box appears right away (happens in FF3.6.15 at least):
 		if (this.tips.tip) {
 			this.tips.tip.setStyle('display', 'none');
@@ -1102,7 +1126,50 @@ var FileManager = new Class({
 			this.downloadForm = null;
 		}
 
-		this.downloadIframe = (new IFrame()).set({src: 'about:blank', name: '_downloadIframe'}).setStyles({display:'none'});
+		this.downloadIframe = new IFrame({
+				src: 'about:blank',
+				name: '_downloadIframe',
+				styles: {
+					display: 'none'
+				},
+			    events: {
+					load: function()
+					{
+						var iframe = this;
+						self.diag.log('download response: ', this, ', iframe: ', self.downloadIframe, ', ready: ', (1 * dummyframe_active));
+
+						// make sure we don't act on premature firing of the event in MSIE / Safari browsers:
+						if (!dummyframe_active)
+							return;
+
+						var response = null;
+						Function.attempt(function() {
+								response = iframe.contentDocument.documentElement.textContent;
+							},
+							function() {
+								response = iframe.contentWindow.document.innerText;
+							},
+							function() {
+								response = iframe.contentDocument.innerText;
+							},
+							function() {
+								response = "{status: 0, error: \"Download: download assumed okay: can't find response.\"}";
+							}
+						);
+
+						var j = JSON.decode(response);
+
+						if (j && !j.status)
+						{
+							self.showError('' + j.error);
+						}
+						else if (!j)
+						{
+							self.showError('bugger! No or faulty JSON response! ' + response);
+						}
+					}
+				}
+			});
 		this.menu.adopt(this.downloadIframe);
 
 		this.downloadForm = new Element('form', {target: '_downloadIframe', method: 'post', enctype: 'multipart/form-data'});
@@ -1122,6 +1189,8 @@ var FileManager = new Class({
 					{
 						this.downloadForm.adopt((new Element('input')).set({type: 'hidden', name: k, value: v}));
 					}.bind(this));
+
+		dummyframe_active = true;
 
 		return this.downloadForm.submit();
 	},
@@ -2384,12 +2453,9 @@ var FileManager = new Class({
 				}
 
 				editButtons = [];
-				// download icon
-				if (this.options.download) {
-					if (this.options.download) editButtons.push('download');
-				}
 
-				// rename, delete icon
+				// download, rename, delete icon
+				if (this.options.download) editButtons.push('download');
 				if (this.options.rename) editButtons.push('rename');
 				if (this.options.destroy) editButtons.push('destroy');
 
@@ -2858,7 +2924,7 @@ var FileManager = new Class({
 			var dir = this.CurrentDir.path;
 
 			this.diag.log('fillInfo: request detail for file: ', Object.clone(file), ', dir: ', dir);
-
+      if(this.options.showDirGallery == false && file.mime === 'text/directory') return;
 			var tx_cfg = this.options.mkServerRequestURL(this, 'detail', {
 							directory: this.dirname(file.path),
 							// fixup for root directory detail requests:
@@ -2893,10 +2959,23 @@ var FileManager = new Class({
 
 					this.info_head.getElement('h1').set('text', file.name);
 					this.info_head.getElement('h1').set('title', file.name);
+          
+          // don't wait for the fade to finish to set up the new content
+          var prev = this.preview.removeClass('filemanager-loading').set('html', '');
 
-					// don't wait for the fade to finish to set up the new content
-					var prev = this.preview.removeClass('filemanager-loading').set('html', (j.content ? j.content.substitute(this.language, /\\?\$\{([^{}]+)\}/g) : '')).getElement('img.preview');
-
+          if(typeof this.options.previewHandlers[j.mime] === 'function')
+          {
+            this.options.previewHandlers[j.mime](prev, j);
+          }
+          else if(typeof this.options.previewHandlers[j.mime.split('/')[0]] === 'function')
+          {
+            this.options.previewHandlers[j.mime.split('/')[0]](prev, j);
+          }
+          else
+          {
+            prev.set('html', (j.content ? j.content.substitute(this.language, /\\?\$\{([^{}]+)\}/g) : '')).getElement('img.preview');           
+          }
+          
 					if (file.mime === 'text/directory')
 					{
 						// only show the image set when this directory is also the current one (other directory detail views can result from a directory rename operation!
@@ -3055,6 +3134,40 @@ var FileManager = new Class({
 		}
 	},
 
+  audioPreview: function(previewArea, fileDetails)
+  {
+    var dl = new Element('dl')
+                .adopt(new Element('dt').set('text', this.language['title']))
+                .adopt(new Element('dd').set('text', fileDetails.title))
+                .adopt(new Element('dt').set('text', this.language['artist']))
+                .adopt(new Element('dd').set('text', fileDetails.artist))
+                .adopt(new Element('dt').set('text', this.language['album']))
+                .adopt(new Element('dd').set('text', fileDetails.album))
+                .adopt(new Element('dt').set('text', this.language['length']))
+                .adopt(new Element('dd').set('text', fileDetails.length))
+                .adopt(new Element('dt').set('text', this.language['bitrate']))
+                .adopt(new Element('dd').set('text', fileDetails.bitrate))
+              .inject(previewArea);
+              
+    previewArea = new Element('div', {class: 'filemanager-preview-content'}).inject(previewArea);
+    
+    var dewplayer = this.assetBasePath + '/dewplayer.swf';
+                  
+    new Element('object', {
+        type:   'application/x-shockwave-flash', 
+        data:   dewplayer,
+        width:  200,
+        height: 20,
+        style: 'margin-left:auto;margin-right:auto;display:block;'
+      })
+      .adopt(new Element('param', {name:'wmode',     value:'transparent'}))
+      .adopt(new Element('param', {name:'movie',     value:dewplayer}))
+      .adopt(new Element('param', {name:'flashvars', value:'mp3='+fileDetails.url+'&volume=50&showtime=1'}))              
+      .inject(previewArea);           
+      
+    return previewArea.parentNode;
+  },
+  
 	showFunctions: function(icon,appearOn,opacityBefore,opacityAfter) {
 		var opacity = [opacityBefore || 1, opacityAfter || 0];
 		icon.set({
@@ -3604,18 +3717,19 @@ FileManager.Dialog = new Class({
 		var autofocus_el = (this.options.autofocus_on ? this.el.getElement(this.options.autofocus_on) : (this.el.getElement('button.filemanager-dialog-confirm') || this.el.getElement('button')));
 		if (autofocus_el)
 		{
-			if (('autofocus' in autofocus_el) && !(Browser.Engine && Browser.Engine.webkit))
+			/*if (('autofocus' in autofocus_el) && !(Browser.Engine && Browser.Engine.webkit))
 			{
 				// HTML5 support: see    http://diveintohtml5.org/detect.html
 				//
 				// Unfortunately, it's not really working for me in webkit browsers (Chrome, Safari)  :-((
-				autofocus_el.set('autofocus', 'autofocus');
-				autofocus_el = null;
-			}
+				*/
+				autofocus_el.setProperty('autofocus', 'autofocus');
+				autofocus_el.focus();
+			/*}
 			else
 			{
 				// Safari / Chrome have trouble focussing on things not yet fully rendered!
-			}
+			}*/
 		}
 		this.el.center().fade(1).get('tween').chain((function() {
 				// Safari / Chrome have trouble focussing on things not yet fully rendered!

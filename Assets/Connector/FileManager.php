@@ -15,7 +15,7 @@
  *
  * Copyright:
  *   Copyright (c) 2009-2011 [Christoph Pojer](http://cpojer.net)
- *   Backend: FileManager & FMgr4Alias Copyright (c) 2011 [Ger Hobbelt](http://hobbelt.com)
+ *   Backend: FileManager & FileManagerWithAliasSupport Copyright (c) 2011 [Ger Hobbelt](http://hobbelt.com)
  *
  * Dependencies:
  *   - Tooling.php
@@ -526,7 +526,6 @@ if (!defined('DEVELOPMENT')) define('DEVELOPMENT', 0);   // make sure this #defi
 
 require(strtr(dirname(__FILE__), '\\', '/') . '/Tooling.php');
 require(strtr(dirname(__FILE__), '\\', '/') . '/Image.class.php');
-require(strtr(dirname(__FILE__), '\\', '/') . '/Assets/getid3/getid3.php');
 
 
 
@@ -1002,8 +1001,9 @@ class FileManager
 			'thumbnailPath' => null,                                                    // may sit outside options['directory'] but MUST be in the DocumentRoot tree
 			'thumbSmallSize' => 48,                                                     // Used for thumb48 creation
 			'thumbBigSize' => 250,                                                      // Used for thumb250 creation
-			'mimeTypesPath' => strtr(dirname(__FILE__), '\\', '/') . '/MimeTypes.ini',  // an absolute filesystem path anywhere; when relative, it will be assumed to be against SERVER['SCRIPT_NAME']
+			'mimeTypesPath' => strtr(dirname(__FILE__), '\\', '/') . '/MimeTypes.ini',  // an absolute filesystem path anywhere; when relative, it will be assumed to be against options['RequestScriptURI']
 			'documentRootPath' => null,                                                 // an absolute filesystem path pointing at URI path '/'. Default: SERVER['DOCUMENT_ROOT']
+			'RequestScriptURI' => null,												    // default is $_SERVER['SCRIPT_NAME']
 			'dateFormat' => 'j M Y - H:i',
 			'maxUploadSize' => 2600 * 2600 * 3,
 			// 'maxImageSize' => 99999,                                                 // OBSOLETED, replaced by 'suggestedMaxImageDimension'
@@ -1030,7 +1030,8 @@ class FileManager
 			'CreateIsAuthorized_cb' => null,
 			'DestroyIsAuthorized_cb' => null,
 			'MoveIsAuthorized_cb' => null,
-			'showHiddenFoldersAndFiles' => false      // Hide dot dirs/files ?
+			'showHiddenFoldersAndFiles' => false,      // Hide dot dirs/files ?
+			'useGetID3IfAvailable' => true
 		), (is_array($options) ? $options : array()));
 
 		// transform the obsoleted/deprecated options:
@@ -1039,58 +1040,60 @@ class FileManager
 			$this->options['maxImageDimension'] = array('width' => $this->options['maxImageSize'], 'height' => $this->options['maxImageSize']);
 		}
 
-		$assumed_root = null;
+		$document_root_fspath = null;
 		if (!empty($this->options['documentRootPath']))
 		{
-			$assumed_root = realpath($this->options['documentRootPath']);
+			$document_root_fspath = realpath($this->options['documentRootPath']);
 		}
-		if (empty($assumed_root))
+		if (empty($document_root_fspath))
 		{
-			$assumed_root = realpath($_SERVER['DOCUMENT_ROOT']);
+			$document_root_fspath = realpath($_SERVER['DOCUMENT_ROOT']);
 		}
-		$assumed_root = strtr($assumed_root, '\\', '/');
-		$assumed_root = rtrim($assumed_root, '/');
-		$this->options['documentRootPath'] = $assumed_root;
+		$document_root_fspath = strtr($document_root_fspath, '\\', '/');
+		$document_root_fspath = rtrim($document_root_fspath, '/');
+		$this->options['documentRootPath'] = $document_root_fspath;
+
+		// apply default to RequestScriptURI:
+		if (empty($this->options['RequestScriptURI']))
+		{
+			$this->options['RequestScriptURI'] = $this->getRequestScriptURI();
+		}
 
 		// only calculate the guestimated defaults when they are indeed required:
 		if ($this->options['directory'] == null || $this->options['assetBasePath'] == null || $this->options['thumbnailPath'] == null)
 		{
 			$my_path = @realpath(dirname(__FILE__));
 			$my_path = strtr($my_path, '\\', '/');
-			if (!FileManagerUtility::endsWith($my_path, '/'))
-			{
-				$my_path .= '/';
-			}
-			$my_assumed_url_path = str_replace($assumed_root, '', $my_path);
-
+			$my_path = self::enforceTrailingSlash($my_path);
+			
 			// we throw an Exception here because when these do not apply, the user should have specified all three these entries!
-			if (empty($assumed_root) || empty($my_path) || !FileManagerUtility::startsWith($my_path, $assumed_root))
+			if (!FileManagerUtility::startsWith($my_path, $document_root_fspath))
 			{
 				throw new FileManagerException('nofile');
 			}
 
+			$my_url_path = str_replace($document_root_fspath, '', $my_path);
+
 			if ($this->options['directory'] == null)
 			{
-				$this->options['directory'] = $my_assumed_url_path . '../../Demos/Files/';
+				$this->options['directory'] = $my_url_path . '../../Demos/Files/';
 			}
 			if ($this->options['assetBasePath'] == null)
 			{
-				$this->options['assetBasePath'] = $my_assumed_url_path . '../../Demos/Files/../../Assets/';
+				$this->options['assetBasePath'] = $my_url_path . '../../Assets/';
 			}
 			if ($this->options['thumbnailPath'] == null)
 			{
-				$this->options['thumbnailPath'] = $my_assumed_url_path . '../../Demos/Files/../../Assets/Thumbs/';
+				$this->options['thumbnailPath'] = $my_url_path . '../../Assets/Thumbs/';
 			}
 		}
 
 		/*
 		 * make sure we start with a very predictable and LEGAL options['directory'] setting, so that the checks applied to the
-		 * (possibly) user specified value for this bugger acvtually can check out okay AS LONG AS IT'S INSIDE the DocumentRoot-based
+		 * (possibly) user specified value for this bugger actually can check out okay AS LONG AS IT'S INSIDE the DocumentRoot-based
 		 * directory tree:
 		 */
-		$new_root = $this->options['directory'];
-		$this->options['directory'] = '/';      // use DocumentRoot temporarily as THE root for this optional transform
-		$this->options['directory'] = $this->rel2abs_url_path($new_root . '/');
+		$this->options['directory'] = $this->rel2abs_url_path($this->options['directory'] . '/');
 
 		$this->managedBaseDir = $this->url_path2file_path($this->options['directory']);
 
@@ -1100,7 +1103,6 @@ class FileManager
 		$this->thumbnailCacheDir = $this->url_path2file_path($this->options['thumbnailPath']);  // precalculate this value; safe as we can assume the entire cache dirtree maps 1:1 to filesystem.
 		$this->thumbnailCacheParentDir = $this->url_path2file_path(self::getParentDir($this->options['thumbnailPath']));    // precalculate this value as well; used by scandir/view
 
-
 		$this->options['assetBasePath'] = $this->rel2abs_url_path($this->options['assetBasePath'] . '/');
 
 		$this->options['mimeTypesPath'] = @realpath($this->options['mimeTypesPath']);
@@ -1109,12 +1111,6 @@ class FileManager
 			throw new FileManagerException('nofile');
 		}
 		$this->options['mimeTypesPath'] = strtr($this->options['mimeTypesPath'], '\\', '/');
-
-		// getID3 is slower as it *copies* the image to the temp dir before processing: see GetDataImageSize().
-		// This is done as getID3 can also analyze *embedded* images, for which this approach is required.
-		$this->getid3 = new getID3();
-		$this->getid3->setOption(array('encoding' => 'UTF-8'));
-		//$this->getid3->encoding = 'UTF-8';
 
 		$this->getid3_cache = new MTFMCache(MTFM_MIN_GETID3_CACHESIZE);
 
@@ -1127,7 +1123,6 @@ class FileManager
 	public function getSettings()
 	{
 		return array_merge(array(
-				'basedir' => $this->url_path2file_path($this->options['directory']),
 				'thumbnailCacheDir' => $this->thumbnailCacheDir,
 				'thumbnailCacheParentDir' => $this->thumbnailCacheParentDir,
 				'managedBaseDir' => $this->managedBaseDir
@@ -1518,7 +1513,7 @@ class FileManager
 		$this->sendHttpHeaders('Content-Type: application/json');
 
 		// when we fail here, it's pretty darn bad and nothing to it.
-		// just push the error JSON as go.
+		// just push the error JSON and go.
 		echo json_encode($jserr);
 	}
 
@@ -1683,8 +1678,8 @@ class FileManager
 		$icon48_e = FileManagerUtility::rawurlencode_path($icon48);
 		$icon = $this->getIconForError($emsg, 'is.default-error', true);
 		$icon_e = FileManagerUtility::rawurlencode_path($icon);
-		$jserr['thumb250'] = $icon48_e;
-		$jserr['thumb48'] = $icon48_e;
+		$jserr['thumb250'] = null;
+		$jserr['thumb48'] = null;
 		$jserr['icon48'] = $icon48_e;
 		$jserr['icon'] = $icon_e;
 
@@ -1703,7 +1698,7 @@ class FileManager
 		$this->sendHttpHeaders('Content-Type: application/json');
 
 		// when we fail here, it's pretty darn bad and nothing to it.
-		// just push the error JSON as go.
+		// just push the error JSON and go.
 		echo json_encode($jserr);
 	}
 
@@ -1745,7 +1740,7 @@ class FileManager
 		try
 		{
 			if (!$this->options['destroy'])
-				throw new FileManagerException('disabled');
+				throw new FileManagerException('disabled:destroy');
 
 			$v_ex_code = 'nofile';
 
@@ -1846,7 +1841,7 @@ class FileManager
 		$this->sendHttpHeaders('Content-Type: application/json');
 
 		// when we fail here, it's pretty darn bad and nothing to it.
-		// just push the error JSON as go.
+		// just push the error JSON and go.
 		echo json_encode($jserr);
 	}
 
@@ -1895,7 +1890,7 @@ class FileManager
 		try
 		{
 			if (!$this->options['create'])
-				throw new FileManagerException('disabled');
+				throw new FileManagerException('disabled:create');
 
 			$v_ex_code = 'nofile';
 
@@ -1992,7 +1987,7 @@ class FileManager
 				catch (Exception $e)
 				{
 					// when we fail here, it's pretty darn bad and nothing to it.
-					// just push the error JSON as go.
+					// just push the error JSON and go.
 				}
 			}
 		}
@@ -2019,7 +2014,7 @@ class FileManager
 				catch (Exception $e)
 				{
 					// when we fail here, it's pretty darn bad and nothing to it.
-					// just push the error JSON as go.
+					// just push the error JSON and go.
 				}
 			}
 		}
@@ -2029,7 +2024,7 @@ class FileManager
 		$this->sendHttpHeaders('Content-Type: application/json');
 
 		// when we fail here, it's pretty darn bad and nothing to it.
-		// just push the error JSON as go.
+		// just push the error JSON and go.
 		echo json_encode($jserr);
 	}
 
@@ -2053,10 +2048,17 @@ class FileManager
 	 */
 	protected function onDownload()
 	{
+		$emsg = null;
+		$file_arg = null;
+		$file = null;
+		$jserr = array(
+				'status' => 1
+			);
+		
 		try
 		{
 			if (!$this->options['download'])
-				throw new FileManagerException('disabled');
+				throw new FileManagerException('disabled:download');
 
 			$v_ex_code = 'nofile';
 
@@ -2151,20 +2153,31 @@ class FileManager
 
 				fpassthru($fd);
 				fclose($fd);
+				return;
 			}
+			
+			$emsg = 'read_error';
 		}
 		catch(FileManagerException $e)
 		{
-			// we don't care whether it's a 404, a 403 or something else entirely: we feed 'em a 403 and that's final!
-			send_response_status_header(403);
-			echo $e->getMessage();
+			$emsg = $e->getMessage();
 		}
 		catch(Exception $e)
 		{
-			// we don't care whether it's a 404, a 403 or something else entirely: we feed 'em a 403 and that's final!
-			send_response_status_header(403);
-			echo $e->getMessage();
+			// catching other severe failures; since this can be anything and should only happen in the direst of circumstances, we don't bother translating
+			$emsg = $e->getMessage();
 		}
+
+		// we don't care whether it's a 404, a 403 or something else entirely: we feed 'em a 403 and that's final!
+		send_response_status_header(403);
+
+		$this->modify_json4exception($jserr, $emsg, 'file = ' . $this->mkSafe4Display($file_arg . ', destination path = ' . $file));
+		
+		$this->sendHttpHeaders('Content-Type: text/plain');        // Safer for iframes: the 'application/json' mime type would cause FF3.X to pop up a save/view dialog when transmitting these error reports!
+
+		// when we fail here, it's pretty darn bad and nothing to it.
+		// just push the error JSON and go.
+		echo json_encode($jserr);
 	}
 
 	/**
@@ -2214,7 +2227,7 @@ class FileManager
 		try
 		{
 			if (!$this->options['upload'])
-				throw new FileManagerException('disabled');
+				throw new FileManagerException('disabled:upload');
 
 			// MAY upload zero length files!
 			if (!isset($_FILES) || empty($_FILES['Filedata']) || empty($_FILES['Filedata']['name']))
@@ -2436,7 +2449,7 @@ class FileManager
 		$this->sendHttpHeaders('Content-Type: ' . $this->getPOSTparam('reportContentType', 'application/json'));
 
 		// when we fail here, it's pretty darn bad and nothing to it.
-		// just push the error JSON as go.
+		// just push the error JSON and go.
 		echo json_encode(array_merge($jserr, $_FILES));
 	}
 
@@ -2482,7 +2495,7 @@ class FileManager
 		try
 		{
 			if (!$this->options['move'])
-				throw new FileManagerException('disabled');
+				throw new FileManagerException('disabled:rn_mv_cp');
 
 			$v_ex_code = 'nofile';
 
@@ -2526,7 +2539,7 @@ class FileManager
 						// note: we do not support copying entire directories, though directory rename/move is okay
 						if ($is_copy && $is_dir)
 						{
-							$v_ex_code = 'disabled';
+							$v_ex_code = 'disabled:rn_mv_cp';
 						}
 						else if ($rename)
 						{
@@ -2661,7 +2674,7 @@ class FileManager
 		$this->sendHttpHeaders('Content-Type: application/json');
 
 		// when we fail here, it's pretty darn bad and nothing to it.
-		// just push the error JSON as go.
+		// just push the error JSON and go.
 		echo json_encode($jserr);
 	}
 
@@ -2724,7 +2737,7 @@ class FileManager
 	 */
 	public function extractDetailInfo($json_in, $legal_url, &$meta, $mime_filter, $mime_filters, $mode)
 	{
-		$auto_thumb_gen_mode = in_array('direct', $mode, true);
+		$auto_thumb_gen_mode = !in_array('direct', $mode, true);
 		$metaHTML_mode = in_array('metaHTML', $mode, true);
 		$metaJSON_mode = in_array('metaJSON', $mode, true);
 
@@ -2797,7 +2810,8 @@ class FileManager
 
 		$tstamp_str = date($this->options['dateFormat'], @filemtime($file));
 		$fsize = @filesize($file);
-
+		$fsize_str = empty($fsize) ? '-' : $this->format_bytes($fsize); // convert to T/G/M/K-bytes:
+    
 		$json = array_merge(array(
 				//'status' => 1,
 				//'mimetype' => $mime,
@@ -2807,21 +2821,14 @@ class FileManager
 			),
 			array(
 				'path' => $legal_url,
+				'url'  => $url,
 				'name' => $filename,
 				'date' => $tstamp_str,
 				'mime' => $mime,
-				'size' => $fsize
+				'size' => $fsize,
+				'modified' => @filemtime($file),
+				'size_str' => $fsize_str
 			));
-
-		if (empty($fsize))
-		{
-			$fsize_str = '-';
-		}
-		else
-		{
-			// convert to T/G/M/K-bytes:
-			$fsize_str = $this->format_bytes($fsize);
-		}
 
 		$content = '<dl>
 						<dt>${modified}</dt>
@@ -3051,13 +3058,17 @@ class FileManager
 				$title = $this->mkSafeUTF8($this->getID3infoItem($fi, $this->getID3infoItem($fi, '???', 'tags', 'id3v1', 'title', 0), 'tags', 'id3v2', 'title', 0));
 				$artist = $this->mkSafeUTF8($this->getID3infoItem($fi, $this->getID3infoItem($fi, '???', 'tags', 'id3v1', 'artist', 0), 'tags', 'id3v2', 'artist', 0));
 				$album = $this->mkSafeUTF8($this->getID3infoItem($fi, $this->getID3infoItem($fi, '???', 'tags', 'id3v1', 'album', 0), 'tags', 'id3v2', 'album', 0));
-
+				$length =  $this->mkSafeUTF8($this->getID3infoItem($fi, '???', 'playtime_string'));
+				$bitrate = round($this->getID3infoItem($fi, 0, 'bitrate') / 1000);
+				
+        $json = array_merge($json, array('title' => $title, 'artist' => $artist, 'album' => $album, 'length' => $length, 'bitrate' => $bitrate));
+        
 				$content .= '
 						<dt>${title}</dt><dd>' . $title . '</dd>
 						<dt>${artist}</dt><dd>' . $artist . '</dd>
 						<dt>${album}</dt><dd>' . $album . '</dd>
-						<dt>${length}</dt><dd>' . $this->mkSafeUTF8($this->getID3infoItem($fi, '???', 'playtime_string')) . '</dd>
-						<dt>${bitrate}</dt><dd>' . round($this->getID3infoItem($fi, 0, 'bitrate') / 1000) . 'kbps</dd>
+						<dt>${length}</dt><dd>' . $length . '</dd>
+						<dt>${bitrate}</dt><dd>' . $bitrate . 'kbps</dd>
 					</dl>';
 				$content_dl_term = true;
 				break;
@@ -3376,12 +3387,16 @@ class FileManager
 
 		for ($i = 2; $i < $argc; $i++)
 		{
+      $index = func_get_arg($i);
 			if (!is_array($getid3_info_obj))
 			{
+        // the getID3 library seems to return an array for id3 tags, the fall back does not, we
+        // will just short circuit this, it'll be fine.
+        if($i == $argc-1 && $index === 0) return $getid3_info_obj;
+        
 				return $default_value;
 			}
 
-			$index = func_get_arg($i);
 			if (array_key_exists($index, $getid3_info_obj))
 			{
 				$getid3_info_obj = $getid3_info_obj[$index];
@@ -3394,6 +3409,119 @@ class FileManager
 		// WARNING: convert '$' to the HTML entity to prevent the JS/client side from 'seeing' the $ and start ${xyz} template variable replacement erroneously
 		return str_replace('$', '&#36;', $getid3_info_obj);
 	}
+
+  /** Return an array of information about a file.
+   *
+   *    IFF the getID3 library (GPL) is available, it will be used.
+   *    ELSE IF FileInfo extention is available, we will try that for getting mimetype
+   *    ELSE do it manually
+   *
+   *  == All Files ==
+   *  mime_type
+   *
+   *  == Images ==   
+   *  video:[resolution_x, resolution_y] 
+   *  jpg:exif:IFD0:[Software, DateTime]
+   *
+   *  == Zip Files ==
+   *  zip:files (an array (name => size|files))
+   *
+   *  == Flash Files ==
+   *  swf:header:[frame_width, frame_height, frame_count, length]
+   *
+   *  == Audio Files ==
+   *  tags:id3v1:[title,artist,album]    
+   *  playtime_string
+   *  bitrate
+   *
+   *  == Video Files ==
+   *  audio:[dataformat,sample_rate,bitrate,bitrate_mode,channels,codec,streams]
+   *  video:[dataformat,bitrate,bitrate_mode,frame_rate,resolution_x,resolution_y,pixel_aspect_ratio,codec]
+   *  bitrate
+   *  playtime_string
+   */
+   
+  public function analyze_file($file, $legal_url)
+  {
+    if($this->options['useGetID3IfAvailable'] && (class_exists('getID3') || file_exists(strtr(dirname(__FILE__), '\\', '/') . '/Assets/getid3/getid3.php')))
+    {
+      // Note delaying requiring getiD3 until now, because it is big and we don't need it if the data is cached already.
+      if(!class_exists('GetId3'))
+      {
+        require(strtr(dirname(__FILE__), '\\', '/') . '/Assets/getid3/getid3.php');
+      }
+
+      $id3 = new getID3();
+      $id3->setOption(array('encoding' => 'UTF-8'));
+      $id3->analyze($file);      
+      $rv = $id3->info;
+      if (empty($rv['mime_type']))
+      {
+        // guarantee to produce a mime type, at least!
+        $rv['mime_type'] = $this->getMimeFromExt($legal_url);     // guestimate mimetype when content sniffing didn't work
+      }
+      
+      return $rv;
+    }
+    else
+    {
+      $rv = array();
+      
+      if(function_exists('finfo_open') && defined('FILEINFO_MIME_TYPE'))
+      {
+        if(!isset($this->_finfo)) $this->_finfo = finfo_open(FILEINFO_MIME_TYPE);
+        $rv['mime_type'] = finfo_file($this->_finfo, $file);        
+      }
+      
+      if(!@$rv['mime_type'])
+      {
+        $rv['mime_type'] = $this->getMimeFromExt($legal_url);     // guestimate mimetype when content sniffing didn't work
+      }
+                  
+      switch(preg_replace('/\/.*$/', '', $rv['mime_type']))
+      {
+        case 'image':
+        {
+          $size = getimagesize($file);
+          if($size !== FALSE)
+          {
+            $rv['video']['resolution_x'] = $size[0];
+            $rv['video']['resolution_y'] = $size[1];                        
+          }
+          
+          if(function_exists('exif_imagetype') && exif_imagetype($file) !== FALSE)
+          {
+            $rv['exif'] = exif_read_data($file, 0, true);    
+            $rv['jpg']['exif'] = $rv['exif']; // Not strictly true!
+          }
+        }
+        break;
+        
+        case 'audio':
+        {
+          switch($rv['mime_type'])
+          {
+            case 'audio/mpeg':
+            {
+              require_once(strtr(dirname(__FILE__), '\\', '/') . '/ID3.class.php');
+              $ID3 = new id3Parser();
+              $tags = $ID3->read($file);
+              switch($tags['id3'])
+              {                
+                case 1: $rv['tags']['id3v1'] = $tags; 
+                default: $rv['tags']['id3v2'] = $tags;
+              }
+              
+            }            
+            break;
+          }
+        }
+        break;
+      }
+      
+      return $rv;
+    }
+  }
 
 
 
@@ -4381,10 +4509,17 @@ class FileManager
 	 * For example, if the request was 'http://site.org/dir1/dir2/script.php', then this method will
 	 * return '/dir1/dir2/script.php'.
 	 *
-	 * This is equivalent to $_SERVER['SCRIPT_NAME']
+	 * By default, this is equivalent to $_SERVER['SCRIPT_NAME'].
+	 *
+	 * This default can be overridden by specifying the options['RequestScriptURI'] when invoking the constructor.
 	 */
 	public /* static */ function getRequestScriptURI()
 	{
+		if (!empty($this->options['RequestScriptURI']))
+		{
+			return $this->options['RequestScriptURI'];
+		}
+		
 		// see also: http://php.about.com/od/learnphp/qt/_SERVER_PHP.htm
 		$path = strtr($_SERVER['SCRIPT_NAME'], '\\', '/');
 
@@ -4400,7 +4535,6 @@ class FileManager
 	 */
 	public /* static */ function getRequestPath()
 	{
-		// see also: http://php.about.com/od/learnphp/qt/_SERVER_PHP.htm
 		$path = self::getParentDir($this->getRequestScriptURI());
 		$path = self::enforceTrailingSlash($path);
 
@@ -4528,9 +4662,12 @@ class FileManager
 	}
 
 	/**
-	 * Accept a URI relative or absolute LEGAL URI path and transform it to an absolute URI path, i.e. rooted against DocumentRoot.
+	 * Accept a relative or absolute LEGAL URI path and transform it to an absolute URI path, i.e. rooted against DocumentRoot.
 	 *
-	 * Relative paths are assumed to be relative to the current request path, i.e. the getRequestPath() produced path.
+	 * Relative paths are assumed to be relative to the options['directory'] directory. This makes them equivalent to absolute paths within
+	 * the LEGAL URI tree and this fact may seem odd. Alas, the FM frontend sends requests without the leading slash and it's those that
+	 * we wish to resolve here, after all. So, yes, this deviates from the general principle applied elesewhere in the code. :-(
+	 * Nevertheless, it's easier than scanning and tweaking the FM frontend everywhere.
 	 *
 	 * Note: as it uses normalize(), any illegal path will throw a FileManagerException
 	 *
@@ -4538,30 +4675,18 @@ class FileManager
 	 */
 	public function legal2abs_url_path($path)
 	{
+		$path = $this->rel2abs_legal_url_path($path);
+		
 		$root = $this->options['directory'];
 
-		$path = strtr($path, '\\', '/');
-		if (FileManagerUtility::startsWith($path, '/'))
-		{
-			// clip the trailing '/' off the $root path as $path has a leading '/' already:
-			$path = substr($root, 0, -1) . $path;
-		}
+		// clip the trailing '/' off the $root path as $path has a leading '/' already:
+		$path = substr($root, 0, -1) . $path;
 
-		$path = $this->rel2abs_url_path($path);
-
-		// but we MUST make sure the path is still a LEGAL URI, i.e. sutting inside options['directory']:
-		if (strlen($path) < strlen($root))
-			$path = self::enforceTrailingSlash($path);
-
-		if (!FileManagerUtility::startsWith($path, $root))
-		{
-			throw new FileManagerException('path_tampering:' . $path);
-		}
 		return $path;
 	}
 
 	/**
-	 * Accept a URI relative or absolute LEGAL URI path and transform it to an absolute LEGAL URI path, i.e. rooted against options['directory'].
+	 * Accept a relative or absolute LEGAL URI path and transform it to an absolute LEGAL URI path, i.e. rooted against options['directory'].
 	 *
 	 * Relative paths are assumed to be relative to the options['directory'] directory. This makes them equivalent to absolute paths within
 	 * the LEGAL URI tree and this fact may seem odd. Alas, the FM frontend sends requests without the leading slash and it's those that
@@ -4574,25 +4699,13 @@ class FileManager
 	 */
 	public function rel2abs_legal_url_path($path)
 	{
-		if (0) // TODO: remove the 'relative is based on options['directory']' hack when the frontend has been fixed...
+		$path = strtr($path, '\\', '/');
+		if (!FileManagerUtility::startsWith($path, '/'))
 		{
-			$path = $this->legal2abs_url_path($path);
-
-			$root = $this->options['directory'];
-
-			// clip the trailing '/' off the $root path before reduction:
-			$path = str_replace(substr($root, 0, -1), '', $path);
+			$path = '/' . $path;
 		}
-		else
-		{
-			$path = strtr($path, '\\', '/');
-			if (!FileManagerUtility::startsWith($path, '/'))
-			{
-				$path = '/' . $path;
-			}
 
-			$path = $this->normalize($path);
-		}
+		$path = $this->normalize($path);
 
 		return $path;
 	}
@@ -4609,12 +4722,12 @@ class FileManager
 		$url_path = $this->rel2abs_url_path($url_path);
 
 		$path = $this->options['documentRootPath'] . $url_path;
-		//$path = $this->normalize($path);    -- taken care of by rel2abs_url_path already
+
 		return $path;
 	}
 
 	/**
-	 * Return the filesystem absolute path for the relative URI path or absolute LEGAL URI path.
+	 * Return the filesystem absolute path for the relative or absolute LEGAL URI path.
 	 *
 	 * Note: as it uses normalize(), any illegal path will throw an FileManagerException
 	 *
@@ -4670,7 +4783,16 @@ class FileManager
 			{
 				$extra1 = (!empty($e[1]) ? $this->mkSafe4Display($e[1]) : '');
 				$extra2 = (!empty($target_info) ? ' (' . $this->mkSafe4Display($target_info) . ')' : '');
-				$jserr['error'] = $emsg = '${backend.' . $e[0] . '}' . $extra1 . $extra2;
+				$jserr['error'] = $emsg = '${backend.' . $e[0] . '}';
+				if ($e[0] != 'disabled')
+				{
+					// only append the extra data when it's NOT the 'disabled on this server' message!
+					$jserr['error'] .=  $extra1 . $extra2;
+				}
+				else
+				{
+					$jserr['error'] .=  ' (${' . $extra1 . '})';
+				}
 			}
 			$jserr['status'] = 0;
 		}
@@ -4847,18 +4969,8 @@ class FileManager
 			}
 			else
 			{
-				$this->getid3->analyze($file);
-
-				$rv = $this->getid3->info;
-				if (empty($rv['mime_type']))
-				{
-					// guarantee to produce a mime type, at least!
-					$meta->store('mime_type', $this->getMimeFromExt($file));     // guestimate mimetype when content sniffing didn't work
-				}
-				else
-				{
-					$meta->store('mime_type', $rv['mime_type']);
-				}
+        $rv = $this->analyze_file($file, $legal_url);
+        $meta->store('mime_type', $rv['mime_type']);        
 				$meta->store('analysis', $rv);
 			}
 		}
