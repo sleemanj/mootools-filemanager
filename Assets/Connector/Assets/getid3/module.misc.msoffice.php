@@ -27,7 +27,7 @@ class getid3_msoffice
 		}
 		$ThisFileInfo['fileformat'] = 'msoffice';
 
-$ThisFileInfo['error'][] = 'MS Office (.doc, .xls, etc) parsing not enabled in this version of getID3() [v'.GETID3_VERSION.']';
+$ThisFileInfo['error'][] = 'MS Office (.doc, .xls, etc) previewing not available in this version of getID3() [v'.GETID3_VERSION.']';
 return false;
 
 	}
