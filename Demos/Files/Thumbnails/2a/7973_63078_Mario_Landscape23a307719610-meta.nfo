@@ -1,0 +1,285 @@
+<?php
+
+// legal URL: /63078-Mario_Landscape.png
+
+$statdata = array (
+  0 => 3,
+  1 => 0,
+  2 => 33206,
+  3 => 1,
+  4 => 0,
+  5 => 0,
+  6 => 3,
+  7 => 290349,
+  8 => 1311450863,
+  9 => 1311448094,
+  10 => 1311450863,
+  11 => -1,
+  12 => -1,
+  'dev' => 3,
+  'ino' => 0,
+  'mode' => 33206,
+  'nlink' => 1,
+  'uid' => 0,
+  'gid' => 0,
+  'rdev' => 3,
+  'size' => 290349,
+  'atime' => 1311450863,
+  'mtime' => 1311448094,
+  'ctime' => 1311450863,
+  'blksize' => -1,
+  'blocks' => -1,
+);
+
+$data = array (
+  'mime_type' => 'image/png',
+  'analysis' => 
+  array (
+    'GETID3_VERSION' => '1.8.5-20110218',
+    'filesize' => 290349,
+    'avdataoffset' => 0,
+    'avdataend' => 290349,
+    'fileformat' => 'png',
+    'video' => 
+    array (
+      'dataformat' => 'png',
+      'lossless' => false,
+      'resolution_x' => 1280,
+      'resolution_y' => 1024,
+      'bits_per_sample' => 24,
+      'compression_ratio' => 0.073839569091797,
+    ),
+    'encoding' => 'UTF-8',
+    'filename' => '63078-Mario_Landscape.png',
+    'filepath' => 'D:/Creative/Server/htdocs/filemanager/Demos/Files',
+    'filenamepath' => 'D:/Creative/Server/htdocs/filemanager/Demos/Files/63078-Mario_Landscape.png',
+    'mime_type' => 'image/png',
+    'png' => 
+    array (
+      'IHDR' => 
+      array (
+        'header' => 
+        array (
+          'data_length' => 13,
+          'type_text' => 'IHDR',
+          'type_raw' => 1229472850,
+          'data' => '' . "\0" . '' . "\0" . '' . "\0" . '' . "\0" . '' . "\0" . '' . "\0" . '' . "\0" . '' . "\0" . '' . "\0" . '',
+          'crc' => 837903124,
+          'flags' => 
+          array (
+            'ancilliary' => false,
+            'private' => false,
+            'reserved' => false,
+            'safe_to_copy' => false,
+          ),
+        ),
+        'width' => 1280,
+        'height' => 1024,
+        'raw' => 
+        array (
+          'bit_depth' => 8,
+          'color_type' => 2,
+          'compression_method' => 0,
+          'filter_method' => 0,
+          'interlace_method' => 0,
+        ),
+        'compression_method_text' => 'deflate/inflate',
+        'color_type' => 
+        array (
+          'palette' => false,
+          'true_color' => true,
+          'alpha' => false,
+        ),
+      ),
+      'pHYs' => 
+      array (
+        'header' => 
+        array (
+          'data_length' => 9,
+          'type_text' => 'pHYs',
+          'type_raw' => 1883789683,
+          'data' => '' . "\0" . '' . "\0" . 'Ã' . "\0" . '' . "\0" . 'Ã',
+          'crc' => 3345983588,
+          'flags' => 
+          array (
+            'ancilliary' => true,
+            'private' => false,
+            'reserved' => false,
+            'safe_to_copy' => true,
+          ),
+        ),
+        'pixels_per_unit_x' => 3779,
+        'pixels_per_unit_y' => 3779,
+        'unit_specifier' => 1,
+        'unit' => 'meter',
+      ),
+      'IDAT' => 
+      array (
+        0 => 
+        array (
+          'header' => 
+          array (
+            'data_length' => 3131,
+            'type_text' => 'IDAT',
+            'type_raw' => 1229209940,
+            'crc' => 2444251816,
+            'flags' => 
+            array (
+              'ancilliary' => false,
+              'private' => false,
+              'reserved' => false,
+              'safe_to_copy' => false,
+            ),
+          ),
+        ),
+      ),
+      'IEND' => 
+      array (
+        'header' => 
+        array (
+          'data_length' => 0,
+          'type_text' => 'IEND',
+          'type_raw' => 1229278788,
+          'crc' => 2923585666,
+          'flags' => 
+          array (
+            'ancilliary' => false,
+            'private' => false,
+            'reserved' => false,
+            'safe_to_copy' => false,
+          ),
+          'data' => '',
+        ),
+      ),
+      'encoding' => 'UTF-8',
+    ),
+  ),
+  'mime_type from file extension' => 'image/png',
+  'thumb250_direct' => '/filemanager/Demos/Files/Thumbnails/2a/7973_63078_Mario_Landscape23a307719610-250x250.png',
+  'thumb250_info' => 
+  array (
+    0 => 250,
+    1 => 200,
+    2 => 3,
+    3 => 'width="250" height="200"',
+    'bits' => 8,
+    'mime' => 'image/png',
+  ),
+  'thumb48_direct' => '/filemanager/Demos/Files/Thumbnails/2a/7973_63078_Mario_Landscape23a307719610-48x48.png',
+  'thumb48_info' => 
+  array (
+    0 => 48,
+    1 => 38,
+    2 => 3,
+    3 => 'width="48" height="38"',
+    'bits' => 8,
+    'mime' => 'image/png',
+  ),
+  'file_info_dump' => 
+  array (
+    'filesize' => 290349,
+    'AV data offset' => 0,
+    'AV data end' => 290349,
+    'file format' => 'png',
+    'video' => 
+    array (
+      'data format' => 'png',
+      'lossless' => false,
+      'resolution x' => 1280,
+      'resolution y' => 1024,
+      'bits per sample' => 24,
+      'compression ratio' => 0.073839569091797,
+    ),
+    'encoding' => 'UTF-8',
+    'mime type' => 'image/png',
+    'png.IHDR.header' => 
+    array (
+      'data length' => 13,
+      'type text' => 'IHDR',
+      'type raw' => 1229472850,
+      'data' => '      ',
+      'crc' => 837903124,
+      'flags' => 
+      array (
+        'ancilliary' => false,
+        'private' => false,
+        'reserved' => false,
+        'safe to copy' => false,
+      ),
+    ),
+    'png.IHDR.width' => 1280,
+    'png.IHDR.height' => 1024,
+    'png.IHDR.raw' => 
+    array (
+      'bit depth' => 8,
+      'color type' => 2,
+      'compression method' => 0,
+      'filter method' => 0,
+      'interlace method' => 0,
+    ),
+    'png.IHDR.compression method text' => 'deflate/inflate',
+    'png.IHDR.color type' => 
+    array (
+      'palette' => false,
+      'true color' => true,
+      'alpha' => false,
+    ),
+    'png.pHYs' => 
+    array (
+      'header' => 
+      array (
+        'data length' => 9,
+        'type text' => 'pHYs',
+        'type raw' => 1883789683,
+        'data' => 
+        BinaryDataContainer::__set_state(array(
+           'binarydata' => '00000ec3 00000ec3 01',
+           'binarydata_mode' => 'procd',
+           'id3_procsupport_obj' => true,
+        )),
+        'crc' => 3345983588,
+        'flags' => 
+        array (
+          'ancilliary' => true,
+          'private' => false,
+          'reserved' => false,
+          'safe to copy' => true,
+        ),
+      ),
+      'pixels per unit x' => 3779,
+      'pixels per unit y' => 3779,
+      'unit specifier' => 1,
+      'unit' => 'meter',
+    ),
+    'png.IDAT.0.header' => 
+    array (
+      'data length' => 3131,
+      'type text' => 'IDAT',
+      'type raw' => 1229209940,
+      'crc' => 2444251816,
+      'flags' => 
+      array (
+        'ancilliary' => false,
+        'private' => false,
+        'reserved' => false,
+        'safe to copy' => false,
+      ),
+    ),
+    'png.IEND.header' => 
+    array (
+      'data length' => 0,
+      'type text' => 'IEND',
+      'type raw' => 1229278788,
+      'crc' => 2923585666,
+      'flags' => 
+      array (
+        'ancilliary' => false,
+        'private' => false,
+        'reserved' => false,
+        'safe to copy' => false,
+      ),
+      'data' => '',
+    ),
+    'png.encoding' => 'UTF-8',
+  ),
+);

@@ -1,0 +1,143 @@
+<?php
+
+// legal URL: /smilies_1.gif
+
+$statdata = array (
+  0 => 3,
+  1 => 0,
+  2 => 33206,
+  3 => 1,
+  4 => 0,
+  5 => 0,
+  6 => 3,
+  7 => 1672,
+  8 => 1311450863,
+  9 => 1311448095,
+  10 => 1311450863,
+  11 => -1,
+  12 => -1,
+  'dev' => 3,
+  'ino' => 0,
+  'mode' => 33206,
+  'nlink' => 1,
+  'uid' => 0,
+  'gid' => 0,
+  'rdev' => 3,
+  'size' => 1672,
+  'atime' => 1311450863,
+  'mtime' => 1311448095,
+  'ctime' => 1311450863,
+  'blksize' => -1,
+  'blocks' => -1,
+);
+
+$data = array (
+  'mime_type' => 'image/gif',
+  'analysis' => 
+  array (
+    'GETID3_VERSION' => '1.8.5-20110218',
+    'filesize' => 1672,
+    'avdataoffset' => 0,
+    'avdataend' => 1672,
+    'fileformat' => 'gif',
+    'video' => 
+    array (
+      'dataformat' => 'gif',
+      'lossless' => true,
+      'pixel_aspect_ratio' => 1,
+      'resolution_x' => 17,
+      'resolution_y' => 263,
+      'bits_per_sample' => 8,
+      'compression_ratio' => 0.37396555580407,
+    ),
+    'encoding' => 'UTF-8',
+    'filename' => 'smilies_1.gif',
+    'filepath' => 'D:/Creative/Server/htdocs/filemanager/Demos/Files',
+    'filenamepath' => 'D:/Creative/Server/htdocs/filemanager/Demos/Files/smilies_1.gif',
+    'mime_type' => 'image/gif',
+    'gif' => 
+    array (
+      'header' => 
+      array (
+        'raw' => 
+        array (
+          'identifier' => 'GIF',
+          'version' => '89a',
+          'width' => 17,
+          'height' => 263,
+          'flags' => 247,
+          'bg_color_index' => 0,
+          'aspect_ratio' => 0,
+        ),
+        'flags' => 
+        array (
+          'global_color_table' => true,
+          'global_color_sorted' => true,
+        ),
+        'bits_per_pixel' => 24,
+        'global_color_size' => 256,
+      ),
+      'version' => '89a',
+    ),
+  ),
+  'mime_type from file extension' => 'image/gif',
+  'file_info_dump' => 
+  array (
+    'filesize' => 1672,
+    'AV data offset' => 0,
+    'AV data end' => 1672,
+    'file format' => 'gif',
+    'video' => 
+    array (
+      'data format' => 'gif',
+      'lossless' => true,
+      'pixel aspect ratio' => 1,
+      'resolution x' => 17,
+      'resolution y' => 263,
+      'bits per sample' => 8,
+      'compression ratio' => 0.37396555580407,
+    ),
+    'encoding' => 'UTF-8',
+    'mime type' => 'image/gif',
+    'gif.header.raw' => 
+    array (
+      'identifier' => 'GIF',
+      'version' => '89a',
+      'width' => 17,
+      'height' => 263,
+      'flags' => 247,
+      'bg color index' => 0,
+      'aspect ratio' => 0,
+    ),
+    'gif.header.flags' => 
+    array (
+      'global color table' => true,
+      'global color sorted' => true,
+    ),
+    'gif.header.bits per pixel' => 24,
+    'gif.header.global color size' => 256,
+    'gif.version' => '89a',
+  ),
+  'thumb250_direct' => '/filemanager/Demos/Files/Thumbnails/cc/61c2_smilies_1b7b5ce26f8f117947ceeeeac-250x250.gif',
+  'thumb250_info' => 
+  array (
+    0 => 16,
+    1 => 250,
+    2 => 1,
+    3 => 'width="16" height="250"',
+    'bits' => 8,
+    'channels' => 3,
+    'mime' => 'image/gif',
+  ),
+  'thumb48_direct' => '/filemanager/Demos/Files/Thumbnails/cc/61c2_smilies_1b7b5ce26f8f117947ceeeeac-48x48.gif',
+  'thumb48_info' => 
+  array (
+    0 => 3,
+    1 => 48,
+    2 => 1,
+    3 => 'width="3" height="48"',
+    'bits' => 7,
+    'channels' => 3,
+    'mime' => 'image/gif',
+  ),
+);

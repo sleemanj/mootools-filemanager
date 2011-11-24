@@ -1,0 +1,639 @@
+<?php
+
+// legal URL: /Wobbler - Sanxion (bazillion edit) (remix.kwed.org.search_id=455).mp3
+
+$statdata = array (
+  0 => 3,
+  1 => 0,
+  2 => 33206,
+  3 => 1,
+  4 => 0,
+  5 => 0,
+  6 => 3,
+  7 => 5634803,
+  8 => 1311450863,
+  9 => 1311448094,
+  10 => 1311450863,
+  11 => -1,
+  12 => -1,
+  'dev' => 3,
+  'ino' => 0,
+  'mode' => 33206,
+  'nlink' => 1,
+  'uid' => 0,
+  'gid' => 0,
+  'rdev' => 3,
+  'size' => 5634803,
+  'atime' => 1311450863,
+  'mtime' => 1311448094,
+  'ctime' => 1311450863,
+  'blksize' => -1,
+  'blocks' => -1,
+);
+
+$data = array (
+  'mime_type' => 'audio/mpeg',
+  'analysis' => 
+  array (
+    'GETID3_VERSION' => '1.8.5-20110218',
+    'filesize' => 5634803,
+    'avdataoffset' => 2095,
+    'avdataend' => 5634803,
+    'fileformat' => 'mp3',
+    'audio' => 
+    array (
+      'dataformat' => 'mp3',
+      'channels' => 2,
+      'sample_rate' => 44100,
+      'bitrate' => 128000,
+      'channelmode' => 'stereo',
+      'bitrate_mode' => 'cbr',
+      'lossless' => false,
+      'encoder_options' => 'CBR128',
+      'compression_ratio' => 0.090702947845805,
+      'streams' => 
+      array (
+        0 => 
+        array (
+          'dataformat' => 'mp3',
+          'channels' => 2,
+          'sample_rate' => 44100,
+          'bitrate' => 128000,
+          'channelmode' => 'stereo',
+          'bitrate_mode' => 'cbr',
+          'lossless' => false,
+          'encoder_options' => 'CBR128',
+          'compression_ratio' => 0.090702947845805,
+        ),
+      ),
+    ),
+    'tags' => 
+    array (
+      'id3v2' => 
+      array (
+        'album' => 
+        array (
+          0 => 'http://Remix.Kwed.Org/',
+        ),
+        'artist' => 
+        array (
+          0 => 'Wobbler',
+        ),
+        'comments' => 
+        array (
+          0 => 'Original by Rob Hubbard (c) 1986 Thalamus. Hey-ho!',
+        ),
+        'genre' => 
+        array (
+          0 => 'C64 Remix',
+        ),
+        'title' => 
+        array (
+          0 => 'Sanxion (bazillion edit)',
+        ),
+        'year' => 
+        array (
+          0 => '2001',
+        ),
+      ),
+    ),
+    'encoding' => 'UTF-8',
+    'filename' => 'Wobbler - Sanxion (bazillion edit) (remix.kwed.org.search_id=455).mp3',
+    'filepath' => 'D:/Creative/Server/htdocs/filemanager/Demos/Files',
+    'filenamepath' => 'D:/Creative/Server/htdocs/filemanager/Demos/Files/Wobbler - Sanxion (bazillion edit) (remix.kwed.org.search_id=455).mp3',
+    'id3v2' => 
+    array (
+      'header' => true,
+      'flags' => 
+      array (
+        'unsynch' => false,
+        'exthead' => false,
+        'experim' => false,
+      ),
+      'majorversion' => 3,
+      'minorversion' => 0,
+      'headerlength' => 2095,
+      'tag_offset_start' => 0,
+      'tag_offset_end' => 2095,
+      'encoding' => 'UTF-8',
+      'comments' => 
+      array (
+        'album' => 
+        array (
+          0 => 'http://Remix.Kwed.Org/',
+        ),
+        'artist' => 
+        array (
+          0 => 'Wobbler',
+        ),
+        'comments' => 
+        array (
+          0 => 'Original by Rob Hubbard (c) 1986 Thalamus. Hey-ho!',
+        ),
+        'genre' => 
+        array (
+          0 => 'C64 Remix',
+        ),
+        'title' => 
+        array (
+          0 => 'Sanxion (bazillion edit)',
+        ),
+        'year' => 
+        array (
+          0 => '2001',
+        ),
+      ),
+      'TALB' => 
+      array (
+        0 => 
+        array (
+          'frame_name' => 'TALB',
+          'frame_flags_raw' => 0,
+          'data' => 'ÿþh' . "\0" . 't' . "\0" . 't' . "\0" . 'p' . "\0" . ':' . "\0" . '/' . "\0" . '/' . "\0" . 'R' . "\0" . 'e' . "\0" . 'm' . "\0" . 'i' . "\0" . 'x' . "\0" . '.' . "\0" . 'K' . "\0" . 'w' . "\0" . 'e' . "\0" . 'd' . "\0" . '.' . "\0" . 'O' . "\0" . 'r' . "\0" . 'g' . "\0" . '/' . "\0" . '',
+          'datalength' => 47,
+          'dataoffset' => 10,
+          'framenamelong' => 'Album/Movie/Show title',
+          'framenameshort' => 'album',
+          'flags' => 
+          array (
+            'TagAlterPreservation' => false,
+            'FileAlterPreservation' => false,
+            'ReadOnly' => false,
+            'compression' => false,
+            'Encryption' => false,
+            'GroupingIdentity' => false,
+          ),
+          'encodingid' => 1,
+          'encoding' => 'UTF-16',
+        ),
+      ),
+      'TPE1' => 
+      array (
+        0 => 
+        array (
+          'frame_name' => 'TPE1',
+          'frame_flags_raw' => 0,
+          'data' => 'ÿþW' . "\0" . 'o' . "\0" . 'b' . "\0" . 'b' . "\0" . 'l' . "\0" . 'e' . "\0" . 'r' . "\0" . '',
+          'datalength' => 17,
+          'dataoffset' => 67,
+          'framenamelong' => 'Lead performer(s)/Soloist(s)',
+          'framenameshort' => 'artist',
+          'flags' => 
+          array (
+            'TagAlterPreservation' => false,
+            'FileAlterPreservation' => false,
+            'ReadOnly' => false,
+            'compression' => false,
+            'Encryption' => false,
+            'GroupingIdentity' => false,
+          ),
+          'encodingid' => 1,
+          'encoding' => 'UTF-16',
+        ),
+      ),
+      'COMM' => 
+      array (
+        0 => 
+        array (
+          'frame_name' => 'COMM',
+          'frame_flags_raw' => 0,
+          'data' => 'ÿþO' . "\0" . 'r' . "\0" . 'i' . "\0" . 'g' . "\0" . 'i' . "\0" . 'n' . "\0" . 'a' . "\0" . 'l' . "\0" . ' ' . "\0" . 'b' . "\0" . 'y' . "\0" . ' ' . "\0" . 'R' . "\0" . 'o' . "\0" . 'b' . "\0" . ' ' . "\0" . 'H' . "\0" . 'u' . "\0" . 'b' . "\0" . 'b' . "\0" . 'a' . "\0" . 'r' . "\0" . 'd' . "\0" . ' ' . "\0" . '(' . "\0" . 'c' . "\0" . ')' . "\0" . ' ' . "\0" . '1' . "\0" . '9' . "\0" . '8' . "\0" . '6' . "\0" . ' ' . "\0" . 'T' . "\0" . 'h' . "\0" . 'a' . "\0" . 'l' . "\0" . 'a' . "\0" . 'm' . "\0" . 'u' . "\0" . 's' . "\0" . '.' . "\0" . ' ' . "\0" . 'H' . "\0" . 'e' . "\0" . 'y' . "\0" . '-' . "\0" . 'h' . "\0" . 'o' . "\0" . '!' . "\0" . '',
+          'datalength' => 110,
+          'dataoffset' => 94,
+          'framenamelong' => 'Comments',
+          'framenameshort' => 'comments',
+          'flags' => 
+          array (
+            'TagAlterPreservation' => false,
+            'FileAlterPreservation' => false,
+            'ReadOnly' => false,
+            'compression' => false,
+            'Encryption' => false,
+            'GroupingIdentity' => false,
+          ),
+          'encodingid' => 1,
+          'encoding' => 'UTF-16',
+          'language' => 'eng',
+          'languagename' => 'English',
+          'description' => 'ÿþ',
+        ),
+      ),
+      'TCON' => 
+      array (
+        0 => 
+        array (
+          'frame_name' => 'TCON',
+          'frame_flags_raw' => 0,
+          'data' => 'ÿþC' . "\0" . '6' . "\0" . '4' . "\0" . ' ' . "\0" . 'R' . "\0" . 'e' . "\0" . 'm' . "\0" . 'i' . "\0" . 'x' . "\0" . '',
+          'datalength' => 21,
+          'dataoffset' => 214,
+          'framenamelong' => 'Content type',
+          'framenameshort' => 'genre',
+          'flags' => 
+          array (
+            'TagAlterPreservation' => false,
+            'FileAlterPreservation' => false,
+            'ReadOnly' => false,
+            'compression' => false,
+            'Encryption' => false,
+            'GroupingIdentity' => false,
+          ),
+          'encodingid' => 1,
+          'encoding' => 'UTF-16',
+        ),
+      ),
+      'TIT2' => 
+      array (
+        0 => 
+        array (
+          'frame_name' => 'TIT2',
+          'frame_flags_raw' => 0,
+          'data' => 'ÿþS' . "\0" . 'a' . "\0" . 'n' . "\0" . 'x' . "\0" . 'i' . "\0" . 'o' . "\0" . 'n' . "\0" . ' ' . "\0" . '(' . "\0" . 'b' . "\0" . 'a' . "\0" . 'z' . "\0" . 'i' . "\0" . 'l' . "\0" . 'l' . "\0" . 'i' . "\0" . 'o' . "\0" . 'n' . "\0" . ' ' . "\0" . 'e' . "\0" . 'd' . "\0" . 'i' . "\0" . 't' . "\0" . ')' . "\0" . '',
+          'datalength' => 51,
+          'dataoffset' => 245,
+          'framenamelong' => 'Title/songname/content description',
+          'framenameshort' => 'title',
+          'flags' => 
+          array (
+            'TagAlterPreservation' => false,
+            'FileAlterPreservation' => false,
+            'ReadOnly' => false,
+            'compression' => false,
+            'Encryption' => false,
+            'GroupingIdentity' => false,
+          ),
+          'encodingid' => 1,
+          'encoding' => 'UTF-16',
+        ),
+      ),
+      'TYER' => 
+      array (
+        0 => 
+        array (
+          'frame_name' => 'TYER',
+          'frame_flags_raw' => 0,
+          'data' => '2001',
+          'datalength' => 5,
+          'dataoffset' => 306,
+          'framenamelong' => 'Year',
+          'framenameshort' => 'year',
+          'flags' => 
+          array (
+            'TagAlterPreservation' => false,
+            'FileAlterPreservation' => false,
+            'ReadOnly' => false,
+            'compression' => false,
+            'Encryption' => false,
+            'GroupingIdentity' => false,
+          ),
+          'encodingid' => 0,
+          'encoding' => 'ISO-8859-1',
+        ),
+      ),
+      'padding' => 
+      array (
+        'start' => 321,
+        'length' => 1774,
+        'valid' => true,
+      ),
+    ),
+    'mime_type' => 'audio/mpeg',
+    'mpeg' => 
+    array (
+      'audio' => 
+      array (
+        'raw' => 
+        array (
+          'synch' => 4094,
+          'version' => 3,
+          'layer' => 1,
+          'protection' => 1,
+          'bitrate' => 9,
+          'sample_rate' => 0,
+          'padding' => 1,
+          'private' => 0,
+          'channelmode' => 1,
+          'modeextension' => 0,
+          'copyright' => 0,
+          'original' => 0,
+          'emphasis' => 0,
+        ),
+        'version' => '1',
+        'layer' => 3,
+        'channelmode' => 'joint stereo',
+        'channels' => 2,
+        'sample_rate' => 44100,
+        'protection' => false,
+        'private' => false,
+        'modeextension' => '',
+        'copyright' => false,
+        'original' => false,
+        'emphasis' => 'none',
+        'padding' => true,
+        'bitrate' => 128000,
+        'framelength' => 418,
+        'bitrate_mode' => 'cbr',
+      ),
+    ),
+    'playtime_seconds' => 352.04425,
+    'tags_html' => 
+    array (
+      'id3v2' => 
+      array (
+        'album' => 
+        array (
+          0 => 'http://Remix.Kwed.Org/',
+        ),
+        'artist' => 
+        array (
+          0 => 'Wobbler',
+        ),
+        'comments' => 
+        array (
+          0 => 'Original by Rob Hubbard (c) 1986 Thalamus. Hey-ho!',
+        ),
+        'genre' => 
+        array (
+          0 => 'C64 Remix',
+        ),
+        'title' => 
+        array (
+          0 => 'Sanxion (bazillion edit)',
+        ),
+        'year' => 
+        array (
+          0 => '2001',
+        ),
+      ),
+    ),
+    'bitrate' => 128000,
+    'playtime_string' => '5:52',
+  ),
+  'mime_type from file extension' => 'audio/mpeg',
+  'file_info_dump' => 
+  array (
+    'filesize' => 5634803,
+    'AV data offset' => 2095,
+    'AV data end' => 5634803,
+    'file format' => 'mp3',
+    'audio' => 
+    array (
+      'data format' => 'mp3',
+      'channels' => 2,
+      'sample rate' => 44100,
+      'bitrate' => 128000,
+      'channel mode' => 'stereo',
+      'bitrate mode' => 'cbr',
+      'lossless' => false,
+      'encoder options' => 'CBR128',
+      'compression ratio' => 0.090702947845805,
+      'streams.0' => 
+      array (
+        'data format' => 'mp3',
+        'channels' => 2,
+        'sample rate' => 44100,
+        'bitrate' => 128000,
+        'channel mode' => 'stereo',
+        'bitrate mode' => 'cbr',
+        'lossless' => false,
+        'encoder options' => 'CBR128',
+        'compression ratio' => 0.090702947845805,
+      ),
+    ),
+    'tags.id3v2.album.0' => 'http://Remix.Kwed.Org/',
+    'tags.id3v2.artist.0' => 'Wobbler',
+    'tags.id3v2.comments.0' => 'Original by Rob Hubbard (c) 1986 Thalamus. Hey-ho!',
+    'tags.id3v2.genre.0' => 'C64 Remix',
+    'tags.id3v2.title.0' => 'Sanxion (bazillion edit)',
+    'tags.id3v2.year.0' => '2001',
+    'encoding' => 'UTF-8',
+    'id3v2.header' => true,
+    'id3v2.flags' => 
+    array (
+      'unsynch' => false,
+      'exthead' => false,
+      'experim' => false,
+    ),
+    'id3v2.majorversion' => 3,
+    'id3v2.minorversion' => 0,
+    'id3v2.headerlength' => 2095,
+    'id3v2.tag offset start' => 0,
+    'id3v2.tag offset end' => 2095,
+    'id3v2.encoding' => 'UTF-8',
+    'id3v2.comments.album.0' => 'http://Remix.Kwed.Org/',
+    'id3v2.comments.artist.0' => 'Wobbler',
+    'id3v2.comments.comments.0' => 'Original by Rob Hubbard (c) 1986 Thalamus. Hey-ho!',
+    'id3v2.comments.genre.0' => 'C64 Remix',
+    'id3v2.comments.title.0' => 'Sanxion (bazillion edit)',
+    'id3v2.comments.year.0' => '2001',
+    'id3v2.TALB.0' => 
+    array (
+      'frame name' => 'TALB',
+      'frame flags raw' => 0,
+      'data' => 
+      BinaryDataContainer::__set_state(array(
+         'binarydata' => 'fffe6800 74007400 70003a00 2f002f00 52006500 6d006900 78002e00 4b007700 65006400 2e004f00 72006700 2f00 (http://Remix.Kwed.Org/)',
+         'binarydata_mode' => 'procd',
+         'id3_procsupport_obj' => true,
+      )),
+      'datalength' => 47,
+      'dataoffset' => 10,
+      'framenamelong' => 'Album/Movie/Show title',
+      'framenameshort' => 'album',
+      'flags' => 
+      array (
+        'TagAlterPreservation' => false,
+        'FileAlterPreservation' => false,
+        'ReadOnly' => false,
+        'compression' => false,
+        'Encryption' => false,
+        'GroupingIdentity' => false,
+      ),
+      'encodingid' => 1,
+      'encoding' => 'UTF-16',
+    ),
+    'id3v2.TPE1.0' => 
+    array (
+      'frame name' => 'TPE1',
+      'frame flags raw' => 0,
+      'data' => 
+      BinaryDataContainer::__set_state(array(
+         'binarydata' => 'fffe5700 6f006200 62006c00 65007200 (Wobbler)',
+         'binarydata_mode' => 'procd',
+         'id3_procsupport_obj' => true,
+      )),
+      'datalength' => 17,
+      'dataoffset' => 67,
+      'framenamelong' => 'Lead performer(s)/Soloist(s)',
+      'framenameshort' => 'artist',
+      'flags' => 
+      array (
+        'TagAlterPreservation' => false,
+        'FileAlterPreservation' => false,
+        'ReadOnly' => false,
+        'compression' => false,
+        'Encryption' => false,
+        'GroupingIdentity' => false,
+      ),
+      'encodingid' => 1,
+      'encoding' => 'UTF-16',
+    ),
+    'id3v2.COMM.0' => 
+    array (
+      'frame name' => 'COMM',
+      'frame flags raw' => 0,
+      'data' => 
+      BinaryDataContainer::__set_state(array(
+         'binarydata' => 'fffe4f00 72006900 67006900 6e006100 6c002000 62007900 20005200 6f006200 20004800 75006200 62006100 72006400 20002800 63002900 20003100 39003800 36002000 54006800 61006c00 61006d00 75007300 2e002000 48006500 79002d00 68006f00 2100 (Original by Rob Hubbard (c) 1986 Thalamus. Hey-ho!)',
+         'binarydata_mode' => 'procd',
+         'id3_procsupport_obj' => true,
+      )),
+      'datalength' => 110,
+      'dataoffset' => 94,
+      'framenamelong' => 'Comments',
+      'framenameshort' => 'comments',
+      'flags' => 
+      array (
+        'TagAlterPreservation' => false,
+        'FileAlterPreservation' => false,
+        'ReadOnly' => false,
+        'compression' => false,
+        'Encryption' => false,
+        'GroupingIdentity' => false,
+      ),
+      'encodingid' => 1,
+      'encoding' => 'UTF-16',
+      'language' => 'eng',
+      'languagename' => 'English',
+      'description' => 'Ã¿Ã¾',
+    ),
+    'id3v2.TCON.0' => 
+    array (
+      'frame name' => 'TCON',
+      'frame flags raw' => 0,
+      'data' => 
+      BinaryDataContainer::__set_state(array(
+         'binarydata' => 'fffe4300 36003400 20005200 65006d00 69007800 (C64 Remix)',
+         'binarydata_mode' => 'procd',
+         'id3_procsupport_obj' => true,
+      )),
+      'datalength' => 21,
+      'dataoffset' => 214,
+      'framenamelong' => 'Content type',
+      'framenameshort' => 'genre',
+      'flags' => 
+      array (
+        'TagAlterPreservation' => false,
+        'FileAlterPreservation' => false,
+        'ReadOnly' => false,
+        'compression' => false,
+        'Encryption' => false,
+        'GroupingIdentity' => false,
+      ),
+      'encodingid' => 1,
+      'encoding' => 'UTF-16',
+    ),
+    'id3v2.TIT2.0' => 
+    array (
+      'frame name' => 'TIT2',
+      'frame flags raw' => 0,
+      'data' => 
+      BinaryDataContainer::__set_state(array(
+         'binarydata' => 'fffe5300 61006e00 78006900 6f006e00 20002800 62006100 7a006900 6c006c00 69006f00 6e002000 65006400 69007400 2900 (Sanxion (bazillion edit))',
+         'binarydata_mode' => 'procd',
+         'id3_procsupport_obj' => true,
+      )),
+      'datalength' => 51,
+      'dataoffset' => 245,
+      'framenamelong' => 'Title/songname/content description',
+      'framenameshort' => 'title',
+      'flags' => 
+      array (
+        'TagAlterPreservation' => false,
+        'FileAlterPreservation' => false,
+        'ReadOnly' => false,
+        'compression' => false,
+        'Encryption' => false,
+        'GroupingIdentity' => false,
+      ),
+      'encodingid' => 1,
+      'encoding' => 'UTF-16',
+    ),
+    'id3v2.TYER.0' => 
+    array (
+      'frame name' => 'TYER',
+      'frame flags raw' => 0,
+      'data' => 
+      BinaryDataContainer::__set_state(array(
+         'binarydata' => '32303031 (2001)',
+         'binarydata_mode' => 'procd',
+         'id3_procsupport_obj' => true,
+      )),
+      'datalength' => 5,
+      'dataoffset' => 306,
+      'framenamelong' => 'Year',
+      'framenameshort' => 'year',
+      'flags' => 
+      array (
+        'TagAlterPreservation' => false,
+        'FileAlterPreservation' => false,
+        'ReadOnly' => false,
+        'compression' => false,
+        'Encryption' => false,
+        'GroupingIdentity' => false,
+      ),
+      'encodingid' => 0,
+      'encoding' => 'ISO-8859-1',
+    ),
+    'id3v2.padding' => 
+    array (
+      'start' => 321,
+      'length' => 1774,
+      'valid' => true,
+    ),
+    'mime type' => 'audio/mpeg',
+    'mpeg.audio' => 
+    array (
+      'raw' => 
+      array (
+        'synch' => 4094,
+        'version' => 3,
+        'layer' => 1,
+        'protection' => 1,
+        'bitrate' => 9,
+        'sample rate' => 0,
+        'padding' => 1,
+        'private' => 0,
+        'channel mode' => 1,
+        'mode extension' => 0,
+        'copyright' => 0,
+        'original' => 0,
+        'emphasis' => 0,
+      ),
+      'version' => '1',
+      'layer' => 3,
+      'channel mode' => 'joint stereo',
+      'channels' => 2,
+      'sample rate' => 44100,
+      'protection' => false,
+      'private' => false,
+      'mode extension' => '',
+      'copyright' => false,
+      'original' => false,
+      'emphasis' => 'none',
+      'padding' => true,
+      'bitrate' => 128000,
+      'framelength' => 418,
+      'bitrate mode' => 'cbr',
+    ),
+    'playtime seconds' => 352.04425,
+    'tags html.id3v2.album.0' => 'http://Remix.Kwed.Org/',
+    'tags html.id3v2.artist.0' => 'Wobbler',
+    'tags html.id3v2.comments.0' => 'Original by Rob Hubbard (c) 1986 Thalamus. Hey-ho!',
+    'tags html.id3v2.genre.0' => 'C64 Remix',
+    'tags html.id3v2.title.0' => 'Sanxion (bazillion edit)',
+    'tags html.id3v2.year.0' => '2001',
+    'bitrate' => 128000,
+    'playtime string' => '5:52',
+  ),
+);

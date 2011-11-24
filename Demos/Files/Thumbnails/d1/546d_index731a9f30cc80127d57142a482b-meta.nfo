@@ -1,0 +1,58 @@
+<?php
+
+// legal URL: /index.html
+
+$statdata = array (
+  0 => 3,
+  1 => 0,
+  2 => 33206,
+  3 => 1,
+  4 => 0,
+  5 => 0,
+  6 => 3,
+  7 => 5128,
+  8 => 1311450863,
+  9 => 1311448095,
+  10 => 1311450863,
+  11 => -1,
+  12 => -1,
+  'dev' => 3,
+  'ino' => 0,
+  'mode' => 33206,
+  'nlink' => 1,
+  'uid' => 0,
+  'gid' => 0,
+  'rdev' => 3,
+  'size' => 5128,
+  'atime' => 1311450863,
+  'mtime' => 1311448095,
+  'ctime' => 1311450863,
+  'blksize' => -1,
+  'blocks' => -1,
+);
+
+$data = array (
+  'mime_type' => 'text/html',
+  'analysis' => 
+  array (
+    'GETID3_VERSION' => '1.8.5-20110218',
+    'filesize' => 5128,
+    'encoding' => 'UTF-8',
+    'filename' => 'index.html',
+    'filepath' => 'D:/Creative/Server/htdocs/filemanager/Demos/Files',
+    'filenamepath' => 'D:/Creative/Server/htdocs/filemanager/Demos/Files/index.html',
+    'error' => 
+    array (
+      0 => 'unable to determine file format',
+    ),
+    'mime_type' => 'text/html',
+  ),
+  'mime_type from file extension' => 'text/html',
+  'file_info_dump' => 
+  array (
+    'filesize' => 5128,
+    'encoding' => 'UTF-8',
+    'error.0' => 'unable to determine file format',
+    'mime type' => 'text/html',
+  ),
+);
