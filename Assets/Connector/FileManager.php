@@ -1045,7 +1045,8 @@ class FileManager
 			'DestroyIsComplete_cb' => null,
 			
 			'showHiddenFoldersAndFiles' => false,      // Hide dot dirs/files ?
-			'UsageMode' => MTFM_USAGE_BASIC
+			'UsageMode' => MTFM_USAGE_BASIC,
+			'enableXSendFile' => false
 		), (is_array($options) ? $options : array()));
 
 		// transform the obsoleted/deprecated options:
@@ -2156,7 +2157,7 @@ class FileManager
 				$hdrs[] = 'Content-Disposition: attachment; filename="' . $fi['basename'] . '"'; // use 'attachment' to force a download
 				
 				// Content length isn't requied for mod_xsendfile (Apache handles this for us)
-				$modx = function_exists('apache_get_modules') && in_array('mod_xsendfile', apache_get_modules());
+				$modx = $this->options['enableXSendFile'] && function_exists('apache_get_modules') && in_array('mod_xsendfile', apache_get_modules());
 				if ($modx)
 				{
 					$hdrs[] = 'X-Sendfile: '.$file;
