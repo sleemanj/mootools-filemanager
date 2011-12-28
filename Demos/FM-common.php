@@ -507,6 +507,16 @@ function session_start_ex($override = false)
 	{
 		$sesid = session_id();
 		$sesname = session_name();
+		
+		// suhosin encrypts/decrypts the PHP cookies on the fly. This seems to be transparent to PHP.
+		// Flash, however, will propogate the encrypted cookie in the propagateData object.
+		// As a result, if suhosin.cookie.encrypt is enabled, we can't trust propagateData's value for $sesname.
+		// Therefore, we should use something else.
+		if (@ini_get('suhosin.cookie.encrypt'))
+		{
+			$sesname .= '_suhosin';
+		}
+		
 		// the SWF.Upload / FancyUpload FLASH components do pass along the cookies, but as extra URL query entities:
 		if (!empty($_POST[$sesname]))
 		{
