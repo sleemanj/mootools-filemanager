@@ -671,9 +671,11 @@ FileManager.Gallery = new Class({
 
 		this.files[name].caption = (this.input.value || '');
 
+		self = this;
+
 		this.wrapper.fade(0).get('tween').chain(function() {
 			this.element.setStyle('display', 'none');
-			this.clone.destroy();
+			self.clone.destroy();
 		});
 	},
 
