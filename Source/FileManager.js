@@ -404,6 +404,8 @@ var FileManager = new Class({
 			}
 		});
 
+    if(this.options.showDirGallery)
+    {
 // Partikule : Thumbs list in preview panel
 		this.browserMenu_thumbList = new Element('a',{
 				'id': 'show_dir_thumb_gallery',
@@ -428,7 +430,7 @@ var FileManager = new Class({
 				this.fillInfo();
 			}.bind(this));
 // /Partikule
-
+    }
 
 		this.browser_dragndrop_info = new Element('a',{
 				'id':'drag_n_drop',
