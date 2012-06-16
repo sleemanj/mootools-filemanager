@@ -56,7 +56,8 @@ session_write_close();
 				// and a couple of extra user defined parameters sent with EVERY request:
 				propagateData: {
 					origin: 'demo-FM-1',
-					extra_data: 'ExtraData'
+					extra_data: 'ExtraData',
+					'alt_session_name_suhosin': <?php echo(json_encode((@ini_get('suhosin.cookie.encrypt') ? session_id() : ''))); ?>
 				},
 				upload: true,
 				download: true,

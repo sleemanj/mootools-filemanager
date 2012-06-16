@@ -125,10 +125,10 @@ Swiff.Uploader = new Class({
     if (!path.contains('?')) path += '?noCache=' + Date.now(); // cache in IE
 
     // container options for Swiff class
-    this.options.container = this.box = new Element('span', {'class': 'swiff-uploader-box',events: { click: function(e) { e.stopPropagation(); } }}).inject($(this.options.container) || document.body);
+    this.options.container = this.box = new Element('span', {'class': 'swiff-uploader-box',events: { click: function(e) { e.stopPropagation(); } }}).inject(document.id(this.options.container) || document.body);
 
     // target
-    this.target = $(this.options.target);
+    this.target = document.id(this.options.target);
     if(this.target) {
       var scroll = window.getScroll();
       this.box.setStyles({

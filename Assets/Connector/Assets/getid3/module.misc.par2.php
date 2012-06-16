@@ -21,7 +21,7 @@ class getid3_par2
 
 		$ThisFileInfo['fileformat'] = 'par2';
 
-		$ThisFileInfo['error'][] = 'PAR2 parsing not enabled in this version of getID3()';
+		$ThisFileInfo['error'][] = 'Preview not available in this version of getID3()';
 		return false;
 
 	}

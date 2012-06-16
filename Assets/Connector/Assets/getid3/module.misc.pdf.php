@@ -21,7 +21,7 @@ class getid3_pdf
 
 		$ThisFileInfo['fileformat'] = 'pdf';
 
-		$ThisFileInfo['error'][] = 'PDF parsing not enabled in this version of getID3()';
+		$ThisFileInfo['error'][] = 'Preview not available in this version of getID3()';
 		return false;
 
 	}

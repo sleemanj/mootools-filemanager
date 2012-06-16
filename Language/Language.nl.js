@@ -34,7 +34,7 @@ FileManager.Language.nl = {
 	rn_mv_cp: 'Rename/Move/Copy',
 
 	download: 'Downloaden',
-	nopreview: '<i>Géén voorbeeld beschikbaar</i>',
+	nopreview: '<i>GÃ©Ã©n voorbeeld beschikbaar</i>',
 
 	title: 'Titel:',
 	artist: 'Artiest:',
@@ -61,7 +61,7 @@ FileManager.Language.nl = {
 	'backend.extension': 'Het bestand heeft een onbekende of niet-toegelaten extensie.',
 	'backend.size': 'Het bestand is te groot voor verwerking.  Probeer opnieuw met een kleiner bestand.',
 	'backend.partial': 'Het bestand dat je verstuurde werd slechts gedeeltelijk ontvangen, probeer het bestand opnieuw te versturen.',
-	'backend.nofile': 'Er werd géén bestand verstuurd of het bestand / folder kon niet worden gevonden.',
+	'backend.nofile': 'Er werd gÃ©Ã©n bestand verstuurd of het bestand / folder kon niet worden gevonden.',
 	'backend.default': 'Er ging iets fout bij het uploaden van het bestand.',
 	'backend.path_not_writable': 'You do not have write/upload permissions for this directory.',
 	'backend.filename_maybe_too_large': 'The filename/path is probably too long for the server filesystem. Please retry with a shorter file name.',
