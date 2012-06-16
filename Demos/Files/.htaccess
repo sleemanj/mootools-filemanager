@@ -1,0 +1,20 @@
+RewriteEngine Off 
+
+Options -ExecCGI -Indexes
+
+SetHandler default-handler
+RemoveOutputFilter shtml shtm php
+
+<FilesMatch "\.((php[0-9]*)|(s?html?)|cgi|pl|py|pyc|rb|jsp|(aspx?))">
+        ForceType text/plain
+</FilesMatch>
+
+<IfModule mod_headers.c>
+        Header set X-Content-Type-Options "nosniff"        
+        RequestHeader unset Cookie
+</IfModule>
+
+<IfModule mod_php.c>
+        php_engine off
+</IfModule>
+        
