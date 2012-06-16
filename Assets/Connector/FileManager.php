@@ -1042,7 +1042,7 @@ class FileManager
 			'DestroyIsComplete_cb' => null,
 			
 			'showHiddenFoldersAndFiles' => false,      // Hide dot dirs/files ?
-			'useGetID3IfAvailable' => true
+			'useGetID3IfAvailable' => true,
 			'enableXSendFile' => false
 		), (is_array($options) ? $options : array()));
 
