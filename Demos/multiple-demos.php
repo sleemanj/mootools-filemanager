@@ -41,16 +41,14 @@ if (0)
 	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 	<link rel="stylesheet" href="demos.css" type="text/css" />
 
-	<script type="text/javascript" src="mootools-core.js"></script>
-	<script type="text/javascript" src="mootools-more.js"></script>
-
-	<script type="text/javascript">
-		// disable the autoinit of the milkbox (must be set before the FileManager.js loads the milkbox.js!)
-		__MILKBOX_NO_AUTOINIT__ = true;
-	</script>
+<!--
+  <script type="text/javascript" src="mootools-core.js"></script>
+  <script type="text/javascript" src="mootools-more.js"></script>
+-->
+  <script type="text/javascript" src="MooTools-Core-1.6.0.js"></script>
+  <script type="text/javascript" src="MooTools-More-1.6.0.js"></script>
 
 	<script type="text/javascript" src="../Source/FileManager.js"></script>
-	<!-- Broken <script type="text/javascript" src="../Source/Gallery.js"></script> -->
 	<script type="text/javascript" src="../Source/NoFlash.Uploader.js"></script>
 	<script type="text/javascript" src="../Language/Language.en.js"></script>
 	<script type="text/javascript" src="../Language/Language.de.js"></script>

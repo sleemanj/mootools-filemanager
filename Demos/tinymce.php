@@ -32,9 +32,13 @@ session_write_close();
 
 	<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/tinymce/4.7.6/tinymce.min.js"></script>
 
-	<script type="text/javascript" src="mootools-core.js"></script>
-	<script type="text/javascript" src="mootools-more.js"></script>
-
+<!--
+  <script type="text/javascript" src="mootools-core.js"></script>
+  <script type="text/javascript" src="mootools-more.js"></script>
+-->
+  <script type="text/javascript" src="MooTools-Core-1.6.0.js"></script>
+  <script type="text/javascript" src="MooTools-More-1.6.0.js"></script>
+  
 	<script type="text/javascript">
 		// disable the autoinit of the milkbox (must be set before the FileManager.js loads the milkbox.js!)
 		__MILKBOX_NO_AUTOINIT__ = true;
@@ -62,7 +66,6 @@ session_write_close();
 			{
 				if (typeof this.milkbox == 'undefined')
 				{
-				console.log("INIT MILKER");
 					// init the milkbox: we cannot use the zIndex base set by the FileManager as the FM isn't initialized yet!
 					this.milkbox = new Milkbox({
 						centered: true,
