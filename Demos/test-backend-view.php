@@ -34,9 +34,7 @@ if (!session_start()) die('session_start() failed');
 
 	<script type="text/javascript" src="../Source/FileManager.js"></script>
 	<script type="text/javascript" src="../Source/Gallery.js"></script>
-	<script type="text/javascript" src="../Source/Uploader/Fx.ProgressBar.js"></script>
-	<script type="text/javascript" src="../Source/Uploader/Swiff.Uploader.js"></script>
-	<script type="text/javascript" src="../Source/Uploader.js"></script>
+	<script type="text/javascript" src="../Source/NoFlash.Uploader.js"></script>
 	<script type="text/javascript" src="../Language/Language.en.js"></script>
 	<script type="text/javascript" src="../Language/Language.de.js"></script>
 

@@ -30,11 +30,7 @@ session_write_close();
 	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 	<link rel="stylesheet" href="demos.css" type="text/css" />
 
-	<link rel="stylesheet" media="all" type="text/css" href="../Assets/js/milkbox/css/milkbox.css" />
-	<link rel="stylesheet" media="all" type="text/css" href="../Assets/Css/FileManager.css" />
-	<link rel="stylesheet" media="all" type="text/css" href="../Assets/Css/Additions.css" />
-
-	<script type="text/javascript" src="../../../../../lib/includes/js/tiny_mce/jscripts/tiny_mce/tiny_mce_src.js"></script>
+	<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/tinymce/4.7.6/tinymce.min.js"></script>
 
 	<script type="text/javascript" src="mootools-core.js"></script>
 	<script type="text/javascript" src="mootools-more.js"></script>
@@ -45,9 +41,7 @@ session_write_close();
 	</script>
 
 	<script type="text/javascript" src="../Source/FileManager.js"></script>
-	<script type="text/javascript" src="../Source/Uploader/Fx.ProgressBar.js"></script>
-	<script type="text/javascript" src="../Source/Uploader/Swiff.Uploader.js"></script>
-	<script type="text/javascript" src="../Source/Uploader.js"></script>
+	<script type="text/javascript" src="../Source/NoFlash.Uploader.js"></script>
 	<script type="text/javascript" src="../Language/Language.en.js"></script>
 	<script type="text/javascript" src="../Language/Language.de.js"></script>
 
@@ -55,27 +49,20 @@ session_write_close();
 
 	<script type="text/javascript">
 		tinyMCE.init({
-			mode: 'textareas',
-			language: 'en',
-			theme: 'advanced',
-			skin: 'o2k7',
-			skin_variant: 'silver',
-			plugins: 'advimage,advlink,inlinepopups',
-			theme_advanced_toolbar_location: 'top',
-			theme_advanced_buttons1: 'link,unlink,image,forecolor,backcolor,|,sub,sup,|,hr,charmap,|,undo,redo,|,bold,italic,underline,strikethrough,|,justifyleft,justifycenter,justifyright,justifyfull,outdent,indent,blockquote,bullist,numlist',
-			theme_advanced_buttons2: '',
-			theme_advanced_buttons3: '',
-
+			selector: 'textarea',
+			theme: 'modern',
+			plugins: 'print preview fullpage searchreplace autolink directionality code visualblocks visualchars fullscreen image link media template codesample table charmap hr pagebreak nonbreaking anchor toc insertdatetime advlist lists textcolor wordcount imagetools  contextmenu colorpicker textpattern help',
+      toolbar1: 'formatselect | bold italic strikethrough forecolor backcolor | link | alignleft aligncenter alignright alignjustify  | numlist bullist outdent indent  | removeformat',
+      image_advtab: true,
 			width: '100%',
 			height: '300px',
-
-			document_base_url: '',
 
 			/* Here goes the Magic */
 			file_browser_callback: FileManager.TinyMCE(function(type)
 			{
 				if (typeof this.milkbox == 'undefined')
 				{
+				console.log("INIT MILKER");
 					// init the milkbox: we cannot use the zIndex base set by the FileManager as the FM isn't initialized yet!
 					this.milkbox = new Milkbox({
 						centered: true,

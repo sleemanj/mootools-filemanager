@@ -3632,6 +3632,8 @@ if (typeof __MFM_ASSETS_DIR__ === 'undefined')
 	})();
 	__MFM_ASSETS_DIR__ = __DIR__ + "../Assets";
 }
+
+
 Asset.javascript(__MFM_ASSETS_DIR__+'/js/milkbox/milkbox.js');
 Asset.css(__MFM_ASSETS_DIR__+'/js/milkbox/css/milkbox.css');
 Asset.css(__MFM_ASSETS_DIR__+'/Css/FileManager.css');
@@ -3642,7 +3644,7 @@ if(Browser.ie && Browser.version <= 7)
 }
 
 
-if( __MFM_USE_BACK_BUTTON_NAVIGATION__ )
+if( typeof __MFM_USE_BACK_BUTTON_NAVIGATION__ != 'undefined' && __MFM_USE_BACK_BUTTON_NAVIGATION__ )
 {
   Asset.javascript(__MFM_ASSETS_DIR__+'/js/jsGET.js', {
     events: {
