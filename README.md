@@ -10,6 +10,7 @@ A filemanager for the web based on MooTools that allows you to (pre)view, upload
 * [Christoph Pojer](http://cpojer.net)
 * [Fabian Vogelsteller](http://frozeman.de)
 * [Ger Hobbelt](http://hobbelt.com) (http://hebbut.net)
+* [James Sleeman](http://gogo.co.nz/)
 
 ### Features
 
@@ -27,10 +28,6 @@ A filemanager for the web based on MooTools that allows you to (pre)view, upload
 * Backend PHP support for mod_alias/mod_vhost_alias/otherwise nonlinear mapped filesystems
 * Auto-adjusts directory views, balancing performance and the amount of data shown, ensuring optimum user experience
 
-### Issues
-
-  - sometimes "illegal character (Error #2038) mootools-core-1.3.js (line 5015)" when uploading multiple files
-
 How to use
 ----------
 
@@ -42,9 +39,7 @@ How to use
 
 * First you need to include the follwing scripts
   * Source/FileManager.js
-  * Source/Uploader/Fx.ProgressBar.js
-  * Source/Uploader/Swiff.Uploader.js
-  * Source/Uploader.js
+  * Source/NoFlash.Uploader.js
   * Source/Gallery.js (if you want to create a gallery, see example in the Demos/index.html)
   * Language/Language.en.js (or the language(s) do you need)
 
