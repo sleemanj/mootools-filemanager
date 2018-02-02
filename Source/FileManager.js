@@ -746,9 +746,9 @@ var FileManager = new Class({
 	mkServerRequestURL: function(fm_obj, request_code, post_data)
 	{
 		return {
-			url: fm_obj.options.url + (fm_obj.options.url.indexOf('?') == -1 ? '?' : '&') + Object.toQueryString({
+			url: (fm_obj.options.url + (fm_obj.options.url.indexOf('?') == -1 ? '?' : '&') + Object.toQueryString({
 					event: request_code
-				}),
+				})).replace(/&&/, '&'),
 			data: post_data
 		};
 	},
